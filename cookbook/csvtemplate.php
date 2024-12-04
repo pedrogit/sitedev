@@ -69,6 +69,8 @@ sort        Sort the result using a CSV column (or variable). Prefix the
 
 limit       Limit the number of rows to this number.
 
+countonly   Only return the count of rows in the CSV.
+
             e.g., limit=100
 */
 
@@ -220,6 +222,11 @@ function CSVTemplateGenerateContent($pagename, $opt)
 
     if ($limit == 0)
         return "";
+
+    if (array_key_exists('countonly', $opt))
+    {
+        return $limit;
+    }
 
     # If a sort argument is present, sort the entries
     if (array_key_exists('sort', $opt) && count($filteredCSV) > 1)
