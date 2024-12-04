@@ -280,6 +280,8 @@ function fxc_Parse_CSV( $text, $sep ) {
 
 // making header names with pattern (adjusting input to get valid names)
 function fxc_Normalise_Header ( $header ) {
+    if (empty($header)) return null;
+    
     $hdpat = [
         "/'/" => '',               # strip single-quotes
         "/^\d+/" => 'N$0',         #prepend leading digits with 'N'
