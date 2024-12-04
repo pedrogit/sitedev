@@ -39,8 +39,8 @@
 
 */
 
-	define(MULTILANGUAGE, '1.1');
-	$RecipeInfo['MultiLanguage']['Version'] = '2015-10-14';
+	define('MULTILANGUAGE', '1.1');
+	$RecipeInfo['MultiLanguage']['Version'] = '20230409';
 
 	SDV($DefaultLanguages,array('en'));
 	SDV($LanguageSelectionFmt,'[[{$FullName}?userlang=$1|$1]] ');
@@ -75,7 +75,7 @@
 
 	//------------------------------------------------------------------------------------
 
-	$PageLanguages = explode(',',$PCache[$pagename]['languages']);
+	$PageLanguages = explode(',',strval(@$PCache[$pagename]['languages']));
 	if (!in_array($userlang,$PageLanguages)) {
 		foreach ($DefaultLanguages as $lang) {
 			if (in_array($lang,$PageLanguages)) {
@@ -148,9 +148,11 @@
 
 	//------------------------------------------------------------------------------------
 
-	Markup_e('selectlang', 'directives', "/\\(:selectlang\s*(.*?):\\)/i", "LanguageSelection(ParseArgs(\$m[1]))");
+	Markup('selectlang', 'directives', "/\\(:selectlang\s*(.*?):\\)/i", "LanguageSelection");
+	
 
-	function LanguageSelection($args) {
+	function LanguageSelection($m) {
+		$args = ParseArgs($m[1]);
 		global $LanguageSelectionFmt, $pagename, $PCache, $DefaultLanguages;
 
 		$pn = $args['page'];
