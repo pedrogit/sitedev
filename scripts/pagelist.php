@@ -99,7 +99,7 @@ function MarkupPageList($m) {
   extract($GLOBALS["MarkupToHTML"]); # get $pagename
   switch ($m[1]) {
     case 'pagelist': 
-      return FmtPageList('$MatchList', $pagename, array('o' => $m[2].' '));
+      return FmtPageList('$MatchList', $pagename, array('o' => ($m[2] ?? null).' '));
     case 'searchbox': 
       return SearchBox($pagename, 
         ParseArgs(@$m[2], $GLOBALS['PageListArgPattern']));
