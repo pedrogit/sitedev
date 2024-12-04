@@ -66,10 +66,10 @@ SDV($DatepickerFormat,'d.m.Y');
 
 # markup-format: (:datepicker field=FIELDNAME [ button=today|tomorrow ] [ usetextbutton=1 ]:)
 
-Markup_e('datepicker',
+Markup('datepicker',
        'directives',
        '/\(:datepicker\s*(.+?):\)/',
-       "datepicker(\$m[1])");
+       "datepicker");
 
 $HTMLHeaderFmt['datepicker'] = "\n<!-- datepicker nsftools -->\n"
     ."<script type='text/javascript' language='JavaScript1.2'>".datepicker_translate()."</script>\n"
@@ -168,13 +168,12 @@ function datepicker_translate()
   return $jscode;
 }
 
-function datepicker($args)
+function datepicker($m)
 {
   global $DatepickerFormat;
   global $DatepickerImg;
   global $FarmPubDirUrl;
-
-  $args = ParseArgs($args);
+  $args = ParseArgs($m[1]);
   # @DEBUG($args,1);
 
   $button    = $args['button'] ?? null;
