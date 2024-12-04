@@ -77,6 +77,43 @@ $HTMLHeaderFmt['datepicker'] = "\n<!-- datepicker nsftools -->\n"
     ."<link rel='stylesheet' type='text/css' href='$DatepickerDirUrl/$DatepickerCSS' />\n"
     ."<!-- datepicker nsftools end -->\n";
 
+
+XLSDV('fr',array(
+  'select' => 'Choisir',
+  'today' => 'aujourd hui',
+  'tomorrow' => 'demain',
+  'press to select date' => 'appuyez ici pour choisir la date',
+  'Su' => 'Dim',
+  'Mo' => 'Lun',
+  'Tu' => 'Mar',
+  'We' => 'Mer',
+  'Th' => 'Jeu',
+  'Fr' => 'Ven',
+  'Sa' => 'Sam',
+  'Sunday' => 'Dimanche',
+  'Monday' => 'Lundi',
+  'Tuesday' => 'Mardi',
+  'Wednesday' => 'Mercredi',
+  'Thursday' => 'Jeudi',
+  'Friday' => 'Vendredi',
+  'January' => 'Janvier',
+  'February' => 'Février',
+  'March' => 'Mars',
+  'April' => 'Avril',
+  'May' => 'Mai',
+  'June' => 'Juin',
+  'July' => 'Juillet',
+  'August' => 'Août',
+  'September' => 'Septembre',
+  'October' => 'Octobre',
+  'November' => 'Novembre',
+  'December' => 'Decembre',
+  'Today is'  => 'Aujourd hui c est',
+  'this month' => 'mois en cours',
+  'close' => 'fermer'
+  ));
+    
+    
 function datepicker_translate()
 // translate the languagespecific content of the javascript-part
 // the corresponding language-specific text has to be translated in a local XLate-Page (page PmWikiXX.XLPageLocal):
