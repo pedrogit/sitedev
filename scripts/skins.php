@@ -60,7 +60,8 @@ else {
 }
 
 SDV($PageCSSListFmt,array(
-  "$LocalCSSDir/local.css" => "$LocalCSSDirUrl/local.css",
+  // Pierre Racine
+  "$LocalCSSDir/local.css" => "$LocalCSSDirUrl/local.css?v=$CSSVersion ",
   "$LocalCSSDir/{\$Group}.css" => "$LocalCSSDirUrl/{\$Group}.css",
   "$LocalCSSDir/{\$FullName}.css" => "$LocalCSSDirUrl/{\$FullName}.css"));
 
