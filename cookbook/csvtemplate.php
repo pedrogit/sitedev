@@ -92,6 +92,14 @@ function array_contains(array $search_arr, array $in_arr)
   return false;
 }
 
+function contains_any($search_str, array $arr)
+{
+  foreach($arr as $a) {
+     if (stripos($search_str,$a) !== false) return true;
+  }
+  return false;
+}
+
 $FoxFilterFunctions['csv'] = 'FoxCSVFilter';
 function FoxCSVFilter($pagename, $fields)
 {
