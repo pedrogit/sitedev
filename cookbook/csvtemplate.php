@@ -111,6 +111,11 @@ function CSVTemplate($m)
     $opt['sort'] = trim($_GET['sort'] ?? "");
   }
 
+  if (isset($_GET['filter']) && isset($_GET['csvname']) && isset($opt['name']) && $_GET['csvname'] == $opt['name'])
+  {
+    $opt['filter'] = trim($_GET['filter'] ?? "").($opt['filter'] ? " && (".$opt['filter'].")" : "");
+  }
+
   # Parse any standalone argument (without '=')
   foreach ((array)@$opt[''] as $a)
     if (!isset($opt[$a])) $opt[$a] = TRUE;
