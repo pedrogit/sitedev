@@ -2154,6 +2154,7 @@ function FormatTableRow($x, $sep = '\\|\\|') {
   }
   $x = preg_replace("/$sep\\s*$/",'',$x);
   $td = preg_split("/$sep/", $x); $y = '';
+  $t='';
   for($i=0;$i<count($td);$i++) {
     if ($td[$i]=='') continue;
     $FmtV['$TableCellCount'] = $i;
@@ -2165,11 +2166,11 @@ function FormatTableRow($x, $sep = '\\|\\|') {
       }
     }
     $td[$i] = preg_replace('/^(!?)\\s+$/', '$1&nbsp;', $td[$i]);
+    $t='td';
     if (preg_match('/^!(.*?)!$/',$td[$i],$match))
       { $td[$i]=$match[1]; $t='caption'; $attr=''; }
     elseif (preg_match('/^!(.*)$/',$td[$i],$match)) 
-      { $td[$i]=$match[1]; $t='th'; }
-    else $t='td';
+      { $td[$i]=$match[1]; $t='th'; };
     if (preg_match('/^\\s.*\\s$/',$td[$i])) {
       if ($t!='caption') $attr .= sprintf($TableCellAlignFmt, 'center');
     }
