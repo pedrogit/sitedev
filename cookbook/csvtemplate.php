@@ -154,17 +154,38 @@ function CSVTemplateQueryURL($pagename)
   return $result;
 }
 
+function fetchCSVData($url)
+{
+  $c = curl_init($url); 
+  curl_setopt($c, CURLOPT_RETURNTRANSFER, 1); 
+  $csv = curl_exec($c); 
+  curl_close($c);
+  return $csv;
+}
 
 function CSVTemplateGenerateContent($pagename, $opt)
 {
     global $FmtPV, $parsedCSV;
     $templatesArray = array();
+    $sourceCSV = '';
 
-    # Check if source file exist
-    $sourcefile = MakePageName($pagename, $opt['source']);
-    if (!PageExists($sourcefile))
-        return "%red%csvtemplate: Invalid source File!";
+    if (substr($opt['source'], 0, 4) == 'http')
+    {
+        $source = $opt['source'];
+        $sourceCSV = fetchCSVData($source);
+    }
+    else
+    {
+        # Check if source file exist
+        $sourcefile = MakePageName($pagename, $opt['source']);
+        if (!PageExists($sourcefile))
+            return "%red%csvtemplate: Invalid source File!";
 
+            # Read the source file
+        $sourceCSV = ReadPage($sourcefile, READPAGE_CURRENT);
+        $sourceCSV = trim($sourceCSV['text'] ?? "")."\n";
+    }
+ 
     # Create a list of templates
     $templateslist = explode(',', $opt['template']);
 
@@ -194,9 +215,6 @@ function CSVTemplateGenerateContent($pagename, $opt)
             $templatesArray[$templatefile."#".$tempanchor] = array(1, 1, $templatestring);
     }
 
-    # Read the source file
-    $sourceCSV = ReadPage($sourcefile, READPAGE_CURRENT);
-    $sourceCSV = trim($sourceCSV['text'])."\n";
 
     # Parse the CSV content if it was not already
     if (!array_key_exists($sourcefile, $parsedCSV))
