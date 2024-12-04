@@ -46,7 +46,7 @@ Markup('AdvancedTableDirectives',
 	"AdvancedTableDirectives_e");
 
 function AdvancedTableDirectives_e($m) {
- 	return AdvancedTableDirectives(strtolower($m[1]),PQA($m[2]));
+ 	return AdvancedTableDirectives(strtolower($m[1] ?? null),PQA($m[2] ?? null));
 }
 
 #------------------------------------------------------------
@@ -102,7 +102,7 @@ function SetupCloseLastElement($sometext, $ElementType = 0) {
 function CloseLastElement($ElementType = 0) {
 	global $ATDTableNumber, $ATDLastElementOpen, $ATDLastElementCloseText;
 	$ATDLastElementOpen[$ATDTableNumber][$ElementType] = false;
-	return $ATDLastElementCloseText[$ATDTableNumber][$ElementType];
+	return $ATDLastElementCloseText[$ATDTableNumber][$ElementType] ?? '';
 }
 #------------------------------------------------------------
 function AdvancedTableDirectives($name,$attr) {
@@ -137,10 +137,10 @@ function AdvancedTableDirectives($name,$attr) {
 		# didn't recognize valign='top' in the row tag.
 		$attr .= (strpos(strtolower($attr), 'valign=') !== false) ? '' : ' valign=\'top\'';
 
-		if ($ATDLastElementOpen[$ATDTableNumber][0]) $out .= CloseLastElement();
-		if (!$ATDLastElementOpen[$ATDTableNumber][1]) $out .= AdvancedTableDirectives('newrow', '');
+		if ($ATDLastElementOpen[$ATDTableNumber][0] ?? false) $out .= CloseLastElement();
+		if (!($ATDLastElementOpen[$ATDTableNumber][1] ?? false)) $out .= AdvancedTableDirectives('newrow', '');
 
-	 	$FmtV['$TableCellIndex'] = ($TableColumnNumber[$ATDTableNumber] % ($TableCellIndexMax? $TableCellIndexMax:1)) + 1;
+	 	$FmtV['$TableCellIndex'] = ($TableColumnNumber[$ATDTableNumber] % ($TableCellIndexMax ? $TableCellIndexMax : 1)) + 1;
 	 	$FmtV['$TableCellCount'] = ++$TableColumnNumber[$ATDTableNumber];
 
 		$attr = MergeClassAndAppendAttributes($attr, FmtPageName(@$TableCellAttrFmt, ''));
@@ -185,16 +185,18 @@ function AdvancedTableDirectives($name,$attr) {
 
 	switch ($name) {
 		case 'row': # THIS DIRECTIVE CAN ALSO BE CALLED THROUGH RECURSION
-			if ($ATDLastElementOpen[$ATDTableNumber][0]) $out .= CloseLastElement();
+			if ($ATDLastElementOpen[$ATDTableNumber][0] ?? false) $out .= CloseLastElement();
 			# FALL THROUGH TO NEXT CASE
 		case 'newrow': # ONLY CALLED THROUGH RECURSION AND FALL THROUGH
-			if ($ATDLastElementOpen[$ATDTableNumber][1]) $out .= CloseLastElement(1);
+			if ($ATDLastElementOpen[$ATDTableNumber][1] ?? false) $out .= CloseLastElement(1);
 
 			$TableColumnNumber[$ATDTableNumber] = 0;
 			$IncrementingColumn[$ATDTableNumber] = 0;
 			$FmtV['$TableCellCount'] = 0;
-			$FmtV['$TableRowIndex' ] = ($TableRowNumber[$ATDTableNumber] % $TableRowIndexMax) + 1;
-			$FmtV['$TableRowCount' ] = ++$TableRowNumber[$ATDTableNumber];
+			if (array_key_exists($ATDTableNumber, $TableRowNumber)){
+				$FmtV['$TableRowIndex' ] = ($TableRowNumber[$ATDTableNumber] % $TableRowIndexMax) + 1;
+				$FmtV['$TableRowCount' ] = ++$TableRowNumber[$ATDTableNumber];
+			}
 
 			$attr = MergeClassAndAppendAttributes($attr, FmtPageName(@$TableRowAttrFmt, ''));
 
@@ -229,9 +231,9 @@ function AdvancedTableDirectives($name,$attr) {
 			# PM said to put <:block> here.
 			return '<:block><table ' . $attr . '>';
 		case 'tableend':
-			if ($ATDLastElementOpen[$ATDTableNumber][0]) $out .= CloseLastElement();
-			if ($ATDLastElementOpen[$ATDTableNumber][1]) $out .= CloseLastElement(1);
-			if ($ATDLastElementOpen[$ATDTableNumber][2]) $out .= CloseLastElement(2);
+			if ($ATDLastElementOpen[$ATDTableNumber][0] ?? false) $out .= CloseLastElement();
+			if ($ATDLastElementOpen[$ATDTableNumber][1] ?? false) $out .= CloseLastElement(1);
+			if ($ATDLastElementOpen[$ATDTableNumber][2] ?? false) $out .= CloseLastElement(2);
 			$ATDTableNumber --;
 			return $out;
 		case 'row#': # deprecated - kept for backward compatibility

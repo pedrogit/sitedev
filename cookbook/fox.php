@@ -213,7 +213,7 @@ Markup('foxcheck','directives','/\(:fox-?(check)\\s+(.*?):\)/i',"FoxCheckMarkup"
 function FoxCheckMarkup($m) {
 	static $idx = 0;
 	$opt = ParseArgs($m[2]);
-	$opt[''] = (array)$opt[''];
+	$opt[''] = (array)($opt[''] ?? []);
 	$opt['name'] = (isset($opt['name'])) ? $opt['name'] : array_shift($opt['']);
 	if (!isset($opt['match']) && isset($opt[''])) $opt['match'] = array_shift($opt['']); 
 	unset($opt['#'], $opt['']);
@@ -335,8 +335,8 @@ function FoxHandlePost($pagename, $auth) {
 	//initialising preview
    if (isset($fx['preview']) || isset($fx['foxdisplay'])) { 
    	//see if we got a preview template
-   	if ($fx['foxpreviewtemplate']) { $fx['foxtemplate'] = $fx['foxpreviewtemplate']; }
-   	else if ($fx['previewtemplate']) { $fx['template'] = $fx['previewtemplate']; }
+   	if (array_key_exists('foxpreviewtemplate', $fx)) { $fx['foxtemplate'] = $fx['foxpreviewtemplate']; }
+   	else if (array_key_exists('previewtemplate', $fx)) { $fx['template'] = $fx['previewtemplate']; }
    	//for cases not called by a foxedit form
    	if (!isset($_SESSION['foxedit'][$pagename])) { 
    		$fx['foxaction'] = 'display';
@@ -944,9 +944,9 @@ function FoxSetMarks($pn, $text, $fx, $tg) {
 	elseif (isset($fx['foxplace'])) $foxmark = " ".$fx['foxplace']; //legacy keyword
 	else $foxmark = '';
 	//check for foxmarks, it overrides any other put setting
-	$foxmarks = array(
+	$foxmarks = [
 		"(:foxappend {$formname}{$foxmark}:)"  => 'above',
-		"(:foxprepend {$formname}{$foxmark}:)" => 'below');
+		"(:foxprepend {$formname}{$foxmark}:)" => 'below'];
 	foreach($foxmarks as $pat=>$v)
 		if (strpos($text, $pat)) { $ms['put'] = $v; $mk[0] = $pat; break; }
 			//DEBUG//
@@ -1031,7 +1031,7 @@ function FoxExcludeFormPos($marks, $forms) {
 	$mark = array();
 	foreach($marks as $k=>$m) {
 		if ($forms=='') { $mark[$k] = array($m[0],$m[1]); continue; }
-		foreach($forms as $d=>$f) {
+		foreach($forms as $f) {
 			if ($f[0]>$m[0] && $f[0]<$m[1]) continue 2;
 			if ($m[1]<$f[0]) { $mark[] = array($m[0],$m[1]); continue 2; }
 			if ($m[1]<$f[1]) continue 2;
@@ -1149,11 +1149,11 @@ if($FoxDebug>6) echo "<br/>RESULT from ENGINE: $result <br/>";
 } //}}}
 
 ## fields to be ignored in initial variable replacements
-SDVA($FoxFxSafeKeys, array(
+SDVA($FoxFxSafeKeys, [
 	'n','foxpage','action','foxaction','foxname','post', 'put',
 	'foxfields',':foxaction',':fulltarget',':put',':foxfields',
 	'foxtemplate', 'foxpreviewtemplate', 'foxdisplaytemplate',
-));
+]);
 
 ## input field var replacements, exclude fields we know are not variables
 function FoxInputVarReplace($pn, &$fx) {
@@ -1656,7 +1656,7 @@ function FoxInputCheck($pagename, $fx) {
 	}
 	if($FoxDebug>4) show($check,'check');
 	$FoxCheckError = array();
-	foreach($check as $i => $opt) {
+	foreach($check as $opt) {
 		foreach($opt['names'] as $n) {
 			if (isset($opt['empty']) && $opt['empty']==1 && ($fx[$n]=='' || $fx[$n]==$FoxClearPTVFmt)) continue;
 			if (!isset($opt['match'])) $opt['match'] = "?*";
@@ -1679,9 +1679,9 @@ function FoxInputCheck($pagename, $fx) {
    $errmsg = (isset($fx['foxcheckmsg'])) ? $fx['foxcheckmsg'] : $FoxCheckErrorMsg;
    //avoid abort or call to foxedit when preview
    if (isset($fx['preview'])) unset($FoxCheckError);
-   
-   if ($FoxCheckError) { 
-   	if ($_SESSION['foxedit'][$pagename]) FoxHandleEdit($pagename);	
+
+   if (isset($FoxCheckError) && count($FoxCheckError) > 0) { 
+   	if (isset($_SESSION['foxedit'][$pagename])) FoxHandleEdit($pagename);	
    	else FoxAbort($pagename, $errmsg);
 	}
 } //}}}

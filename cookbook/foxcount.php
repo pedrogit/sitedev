@@ -40,7 +40,7 @@ Markup('foxcharcount','directives','/\(:foxcharcount\\s+(\\S*?)\\s*:\)/i', "FoxC
 Markup('foxwordcount','directives','/\(:foxwordcount\\s+(\\S*?)\\s*:\)/i', "FoxWordCount");
 function FoxRemainingChars($m) {
   $m = explode(" ", trim($m[1]));
-  return FoxCount($m[0], false, true, $m[1]);
+  return FoxCount($m[0], false, true, $m[1] ?? 0);
 }
 
 function FoxRemainingWords($m) {
@@ -49,7 +49,7 @@ function FoxRemainingWords($m) {
   {
     return Keep('<span class="'.$m[0].$suffix.'">No maximum of word provided in (:FoxRemainingWords:) markup...</span>');
   }
-  return FoxCount($m[0], true, true, $m[1]);
+  return FoxCount($m[0], true, true, $m[1] ?? 0);
 }
 
 function FoxCharCount($m) {

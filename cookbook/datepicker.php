@@ -177,9 +177,9 @@ function datepicker($args)
   $args = ParseArgs($args);
   # @DEBUG($args,1);
 
-  $button    = $args['button'];
-  $format    = $args['format'];
-  $fieldname = $args['field'];
+  $button    = $args['button'] ?? null;
+  $format    = $args['format'] ?? null;
+  $fieldname = $args['field'] ?? null;
 
   if (empty($format))
     $format = $DatepickerFormat;

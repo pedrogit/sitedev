@@ -95,7 +95,7 @@ function FoxCSVFilter($pagename, $fields)
 {
     foreach ($fields as $key => $value)
     {
-        $fields[$key] = trim($fields[$key]);
+        $fields[$key] = trim($fields[$key] ?? "");
         $fields[$key] = str_replace("\"", "\"\"", $fields[$key]);
     }
     return $fields;
@@ -106,8 +106,10 @@ function CSVTemplate($m)
 {
   extract($GLOBALS['MarkupToHTML']);
   $opt = ParseArgs($m[1]);
-  if (isset($_GET['sort']) && isset($_GET['csvname']) && $_GET['csvname'] == $opt['name'])
-    $opt['sort'] = trim($_GET['sort']);
+  if (isset($_GET['sort']) && isset($_GET['csvname']) && isset($opt['name']) && $_GET['csvname'] == $opt['name'])
+  {
+    $opt['sort'] = trim($_GET['sort'] ?? "");
+  }
 
   # Parse any standalone argument (without '=')
   foreach ((array)@$opt[''] as $a)
@@ -122,13 +124,14 @@ function CSVTemplateQueryURL($pagename)
   $opt = array();
 
   // Extract only the parameters that we know are valid one
-  $opt['source'] = trim($_GET['source']);
-  $opt['template'] = str_replace(",", "#", trim($_GET['template']));
-  $opt['header'] = trim($_GET['header']);
-  $opt['sep'] = trim($_GET['sep']);
-  $opt['filter'] = trim($_GET['filter']);
-  $opt['sort'] = trim($_GET['sort']);
-  $opt['limit'] = trim($_GET['limit']);
+  $opt['source'] = trim($_GET['source'] ?? "");
+  $opt['template'] = str_replace(",", "#", trim($_GET['template'] ?? ""));
+  $opt['header'] = trim($_GET['header'] ?? "");
+  $opt['sep'] = trim($_GET['sep'] ?? "");
+  $opt['filter'] = trim($_GET['filter'] ?? "");
+  $opt['sort'] = trim($_GET['sort'] ?? "");
+  $opt['limit'] = trim($_GET['limit'] ?? "");
+  $opt['countonly'] = trim($_GET['countonly'] ?? "");
 
   $result = CSVTemplateGenerateContent($pagename, $opt);
 
@@ -169,7 +172,7 @@ function CSVTemplateGenerateContent($pagename, $opt)
             $templatestring = TextSection($templatestring, "#".$tempanchor);
 
         # Fill the other values depending if the repetition is specified or not (default to 1)
-        $templrepeat = $templateslist[0];
+        $templrepeat = $templateslist[0] ?? null;
         if (is_numeric($templrepeat) && $templrepeat > 0)
             $templatesArray[$templatefile."#".$tempanchor] = array(array_shift($templateslist), 1, $templatestring);
         else
@@ -181,14 +184,14 @@ function CSVTemplateGenerateContent($pagename, $opt)
     $sourceCSV = trim($sourceCSV['text'])."\n";
 
     # Parse the CSV content if it was not already
-    if (!$parsedCSV[$sourcefile])
-        $parsedCSV[$sourcefile] = CSVTemplateParseCVSContent($sourceCSV,  $opt['header'], $opt['sep']);
+    if (!array_key_exists($sourcefile, $parsedCSV))
+        $parsedCSV[$sourcefile] = CSVTemplateParseCVSContent($sourceCSV,  $opt['header'] ?? null, $opt['sep'] ?? null);
 
     $filteredCSV = array();
     $filteredCSV = $parsedCSV[$sourcefile];
 
     # If a filter is present, filter the entries
-    if ($opt['filter'])
+    if (array_key_exists('filter', $opt))
     {
         $filteredresult = array();
         $filteredresult = $parsedCSV[$sourcefile];
@@ -207,14 +210,14 @@ function CSVTemplateGenerateContent($pagename, $opt)
 
     $limit = count($filteredCSV);
     # Determine the number of rows we will return
-    if ($opt['limit'] && is_numeric($opt['limit']) && $opt['limit'] > 0)
+    if (array_key_exists('limit', $opt) && is_numeric($opt['limit']) && $opt['limit'] > 0)
        $limit = min($opt['limit'], $limit);
 
     if ($limit == 0)
         return "";
 
     # If a sort argument is present, sort the entries
-    if ($opt['sort'] and count($filteredCSV) > 1)
+    if (array_key_exists('sort', $opt) && count($filteredCSV) > 1)
     {
         if ($opt['sort'] == 'random')
         {
@@ -314,7 +317,6 @@ function CSVTemplateParseCVSContent($content, $header=TRUE, $separator=";")
 {
     $headerA = array();
     $result = array();
-    $flineval = array();
 
     if ($separator == "")
       $separator=";";
@@ -356,11 +358,11 @@ function CSVTemplateArrayColumnSort()
     foreach($ar as $key => $val)
         foreach($col as $kkey => $vval)
             if(is_string($vval))
-                ${"subar$kkey"}[$key] = $val[$vval];
+                ${"subar$kkey"}[$key] = $val[$vval] ?? null;
 
-    $arv = array();
+    $arv = [];
     foreach($col as $key => $val)
-        $arv[] = (is_string($val) ? ${"subar$key"} : $val);
+        $arv[] = (is_string($val) && isset(${"subar$key"}) ? ${"subar$key"} : $val);
     $arv[] = &$ar;
 
     call_user_func_array("array_multisort", $arv);
@@ -685,7 +687,7 @@ class CSVTemplateParseCSV {
         if ( !empty($data) || $data = $this->rfile($file) ) {
             if ( $this->file != $file ) $this->file = $file;
             if ( preg_match('/\.php$/i', $file) && preg_match('/<\?.*?\?>(.*)/ims', $data, $strip) ) {
-                $data = ltrim($strip[1]);
+                $data = ltrim($strip[1] ?? "");
             }
             if ( $this->convert_encoding ) $data = iconv($this->input_encoding, $this->output_encoding, $data);
             if ( $data[strlen($data)-1] != "\n" ) $data .= "\n";
@@ -744,7 +746,7 @@ class CSVTemplateParseCSV {
 
             // end of field/row
             } elseif ( ($ch == $this->delimiter || ($ch == "\n" && $pch != "\r") || $ch == "\r") && !$enclosed ) {
-                $current = trim($current);
+                $current = trim($current ?? "");
                 $key = ( !empty($head[$col]) ) ? $head[$col] : $col;
                 $row[$key] = $current;
                 $current = '';
@@ -801,7 +803,7 @@ class CSVTemplateParseCSV {
 
         // create heading
         if ( $this->heading && !$append ) {
-            foreach( $fields as $key => $value ) {
+            foreach( $fields as $value ) {
                 $entry[] = $this->enclose_value($value);
             }
             $string .= implode($delimiter, $entry).$this->linefeed;
@@ -809,8 +811,8 @@ class CSVTemplateParseCSV {
         }
 
         // create data
-        foreach( $data as $key => $row ) {
-            foreach( $row as $field => $value ) {
+        foreach( $data as $row ) {
+            foreach( $row as $value ) {
                 $entry[] = $this->enclose_value($value);
             }
             $string .= implode($delimiter, $entry).$this->linefeed;
@@ -865,7 +867,7 @@ class CSVTemplateParseCSV {
             $first = null;
             $equal = null;
             $almost = false;
-            foreach( $array as $key => $value ) {
+            foreach( $array as $value ) {
                 if ( $first == null ) {
                     $first = $value;
                 } elseif ( $value == $first && $equal !== false) {

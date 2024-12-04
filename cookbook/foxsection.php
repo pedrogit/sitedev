@@ -19,8 +19,8 @@ function FoxSection($m) {
   global $HTMLHeaderFmt, $HTMLFooterFmt, $HTMLStylesFmt;;
   $sClassName = $m[1];
   $args = ParseArgs($m[2]);
-  $dep = $args['dep'];
-  $value = $args['value'];
+  $dep = $args['dep'] ?? null;
+  $value = $args['value'] ?? null;
 
   SDV($HTMLHeaderFmt['foxsection'], 
   "<script  type='text/javascript'>

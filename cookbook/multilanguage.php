@@ -189,7 +189,7 @@
 	array_unshift($EditFunctions,'SaveLanguages');
 
 	function SaveLanguages($pagename, &$page, &$new) {
-		$text = $new['text'];
+		$text = $new['text'] ?? "";
 		$text = preg_replace('/(\[=.+=\])/msiU', '', $text);
 		$text = preg_replace('/(\[@.+@\])/msiU', '', $text);
 		preg_match_all('/\(:if\s*userlang\s*(.+?)\s*:\)/msi', $text, $matches);

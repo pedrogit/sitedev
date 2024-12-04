@@ -15,7 +15,7 @@
 $RecipeInfo['FoxCSV']['Version'] = '2024-07-12'; //needs PHP 7.2 min, Fox & FoxEdit versions 2023-11-14 min
 
 // configuration
-SDVA($FoxCSVConfig, array(
+SDVA($FoxCSVConfig, [
     'sep' => '', //separator/delimter character. Leave empty so FoxCSV can determine separator from csv data without need to specify sep=
     'case' => 0,  //case-insensitive queries, set to 1 for case-sensitive queries
     'regex' => 0, //simplified pagelist-like wildcards in queries. Set to 1 to use regular expression query patterns 
@@ -37,7 +37,7 @@ SDVA($FoxCSVConfig, array(
     'thousep' => ',', // thousands separator for 'num' fields number format
     'editbuttonurl' =>   "$FarmPubDirUrl/fox/edit-button.png",
     'deletebuttonurl' => "$FarmPubDirUrl/fox/delete-button.png",
-));
+]);
 
 // markup expression {(newidx <source> [sep=..])} . Can be used as template var {$$(newidx .... )} in fox query form template
 $MarkupExpr['newidx'] = 'fxc_Next_Idx_Num_ME($pagename, $argp)'; 
@@ -280,12 +280,12 @@ function fxc_Parse_CSV( $text, $sep ) {
 
 // making header names with pattern (adjusting input to get valid names)
 function fxc_Normalise_Header ( $header ) {
-    $hdpat = array(
+    $hdpat = [
         "/'/" => '',               # strip single-quotes
         "/^\d+/" => 'N$0',         #prepend leading digits with 'N'
         "/[^_[:alnum:]]+/" => ' ', # convert everything else to space
         '/ /' => '-',              # convert space to hyphen
-    );
+    ];
     $hdr = array_map('trim', $header); //assuming first row is header
     $header = PPRA($hdpat, $hdr); //sanitising header names
     //check for duplicates in header
@@ -884,7 +884,7 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
         $FoxMsgFmt[] = "Error: no csv update action provided"; 
         return $text; 
     }
-    $idx = $fx['csvidx'];
+    $idx = $fx['csvidx'] ?? null;
     $env = $fx['csvenv'] ?? '';
     if (isset($fx['csvfile']) && $fx['csvfile']==1) 
         $text = fxc_Get_Text($pagename, $fx['target']);
@@ -1237,7 +1237,7 @@ function fxc_Edit_Button ($m) {
 	$base = $args['base'] ?? $pagename; //return to base
 	if(empty($label)) $label = "$[Edit]";
 	$imageurl = $GLOBALS['FoxCSVConfig']['editbuttonurl']; 
-	$inputs = array(
+	$inputs = [
 		'source' => $source, 
 		'idx' => $idx, 
 		'sep' => $sep, 
@@ -1248,7 +1248,7 @@ function fxc_Edit_Button ($m) {
 		'target' => $target,
         'multiline' => $multiline,
         'saveasnew' => $saveasnew,
-	);
+	];
 	$out = "\n<form  class='csvform' name='FoxCSV-edit' action='{$PageUrl}' method='post' >".
 			"<input type='hidden' name='action' value='foxcsvedit' />";
 	foreach($inputs as $n=>$v) if (!empty($v)) {
