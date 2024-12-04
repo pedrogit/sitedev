@@ -227,9 +227,9 @@ function AdvancedTableDirectives($name,$attr) {
 
 			CloseLastElement($ATDTableNumber);
 			CloseLastElement($ATDTableNumber, 1);
-			SetupCloseLastElement('</table>', 2);
+			SetupCloseLastElement('</table></div>', 2);
 			# PM said to put <:block> here.
-			return '<:block><table ' . $attr . '>';
+			return '<:block><div style="overflow:auto;"><table ' . $attr . '>';
 		case 'tableend':
 			if ($ATDLastElementOpen[$ATDTableNumber][0] ?? false) $out .= CloseLastElement();
 			if ($ATDLastElementOpen[$ATDTableNumber][1] ?? false) $out .= CloseLastElement(1);
