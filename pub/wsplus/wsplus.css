@@ -51,17 +51,20 @@
     backgrounds and associated icons. */
 .tip {
   padding-left: 80px;
-  background: #ddffdd url(tip.gif) no-repeat 20px;
+  background: #e8f4dd url(tip.gif) no-repeat 20px;
+  overflow: auto;
 }
 
 .important {
   padding-left: 80px;
-  background: #ffffcc url(important.gif) no-repeat 20px;
+  background: #ffec89 url(important.gif) no-repeat 20px;
+  overflow: auto;
 }
 
 .warning {
   padding-left: 80px;
   background: #ffdddd url(warning.gif) no-repeat 20px;
+  overflow: auto;
 }
 
 
