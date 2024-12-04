@@ -168,10 +168,11 @@ function ApplyStyles($x) {
         $v = trim($v);
         if ($wt) $ws = str_replace('$1', "$ns$k='$v'", $wt);
         elseif ($k=='id') $id = preg_replace('/[^-A-Za-z0-9:_.]+/', '_', $v);
-        elseif (($k=='width' || $k=='height') && !@$WikiStyleApply[$a]
+        // Pierre Racine
+        /*elseif (($k=='width' || $k=='height') && !@$WikiStyleApply[$a]
             && preg_match("/\\s*<$imgTag\\b/", $p)) 
           $p = preg_replace("/<($imgTag)\\b(?![^>]*\\s$k=)/", 
-                 "$ws<$1 $ns$k='$v'", $p);
+                 "$ws<$1 $ns$k='$v'", $p);*/
         elseif (@$WikiStyleAttr[$k]) 
           $p = preg_replace(
                  "/<({$WikiStyleAttr[$k]}(?![^>]*\\s(?:$ns)?$k=))([^>]*)>/s",
