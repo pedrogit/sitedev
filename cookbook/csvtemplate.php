@@ -305,6 +305,7 @@ function CSVTemplateGenerateContent($pagename, $opt)
 
     # Create a string using one template per row
     $count = 1;
+    $result = "";
     foreach ($filteredCSV as $rowvalues)
     {
         # Grab the string that will be used as index
