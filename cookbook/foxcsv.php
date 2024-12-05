@@ -112,7 +112,10 @@ function fxc_Display ($m) {
     else
         $data = fxc_Parse_CSV($text, $sep);
     
-    if (empty($data)) return "'''Error:''' Parsing csv data failed!";
+    // Pierre Racine Empty CSV
+    // Never fail when parsing CSV. Get an empty array instead.
+    //if (empty($data)) return "'''Error:''' Parsing csv data failed!";
+    if (empty($data)) return "";
  #show ($data,'data');
 
     // checking for errors in header names. Display errors by using markup (:foxmessages:)
@@ -640,7 +643,7 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
                     (CondAuth($pagename,'admin')? "(:csv-edit {\$\$SOURCE} idx=header sep=\"".$opt['sep']."\" :) | " : ""). 
                     "(:csv-edit {\$\$SOURCE} idx='$nw' sep=\"".$opt['sep']."\" label='Add +'".
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
-                    ":)+ \n";
+                    ":)";
         }
         $head .= FoxVarReplace($pagename, $header, '', $htpl)."\n";
     } 
