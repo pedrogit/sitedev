@@ -58,7 +58,7 @@ function fxc_Next_Idx_Num_ME( $pagename, $argp ) {
 // markup expression {(csv ......)} . Can be used as template var {$$(csv .... )} in fox query form template
 $MarkupExpr['csv'] = 'fxc_Display_ME($pagename, $argp)'; 
 function fxc_Display_ME( $pagename, $argp ) {
-	unset($argp['#']);
+    unset($argp['#']);
     $out = fxc_Display($pagename, 'mxcsv', $argp);
     return str_replace("\n\n","\n", $out);
 } //}}}
@@ -113,13 +113,13 @@ function fxc_Display ($m) {
 
     // create data array with field names as keys for each item
     array_walk($data, function(&$a) use ($data) {
-        $a = fxc_Array_Combine_Special($data[0], $a);    
+        $a = fxc_Array_Combine_Special($data[0], $a);
     });
     // create header array, remove header row from data array
     $header = array_shift($data);
 
     // add SOURCE and IDX fields to data array, (:csv-delete ...:) and (:csv-edit ...:) rely on their presence 
-    foreach($data as $k=>$item) {
+    foreach ($data as $k=>$item) {
         $add1 = array('SOURCE'=>$source);
         if (array_key_exists('IDX',$item)) {
             $data[$k] = $add1 + $item;
@@ -131,7 +131,7 @@ function fxc_Display ($m) {
 
     // filter data. Query-filter is constructed from query string and/or strings from header field names submitted
     $opt['query'] = $opt['query'] ?? $opt['filter'] ?? $opt['q'] ?? "";
-        fxc_Query($data, $header, $opt); 
+    fxc_Query($data, $header, $opt); 
 
     // sort data
     if (isset($opt['sort']))
@@ -139,7 +139,7 @@ function fxc_Display ($m) {
 
     // add CNT field, can be used with template var {$$CNT}, 
     // giving descending result row count (Not the IDX of the item)
-    foreach($data as $k=>$item) {
+    foreach ($data as $k=>$item) {
          $new = array('CNT'=>$k+1);
          $data[$k] = $new + $item;
     }
@@ -150,7 +150,7 @@ function fxc_Display ($m) {
     $data = array_values($data); //re-index
     $rowcnt = count($data);
     $header = array('SOURCE'=>$source) + $header; //source field needed for possible var replacement, does not display as column
-    
+
  #show($header,'header'); show($data,'data final');
 
  // set a function call number, used to feed correct text to Iput Values for copycsv
@@ -160,7 +160,7 @@ function fxc_Display ($m) {
     $head = $body = $foot = $csvbody = ''; 
     if ($template=='') { 
         $auto = 1;
-        $out = fxc_Auto_Table ($pagename, $data, $header, $opt, $num);
+        $out = fxc_Auto_Table($pagename, $data, $header, $opt, $num);
     } 
     else { // use an external template. The header row may be supplied via markup above (:foxcsv ...:) markup, or not at all
         $auto = 0;
@@ -188,7 +188,7 @@ function fxc_Display ($m) {
             // foot: replacing any vars from (:template last:): for column sums use [{$$SUM_<fieldname>}]         
             if (isset($tplast)) {
                 $sums = array();
-                foreach($header as $k=>$v) { 
+                foreach ($header as $k=>$v) { 
                     $sums['SUM_'.$k] = array_sum(array_column($data,$v));
                 }
                 $str = FoxVarReplace($pagename, $sums, '', $tplast);
@@ -204,14 +204,14 @@ function fxc_Display ($m) {
 function fxc_Set_Sep( $text, $opt ) {
     $sep = $opt['sep'] ?? $opt['csvsep'] ?? $GLOBALS['FoxCSVConfig']['sep'];
     if ($sep=='')
-    if (preg_match('/^(")?IDX\1?(;)/', $text, $m)) {
-        $sep = $opt['sep'] = $m[2];
-        if ($m[1]=='"') $opt['quotes'] = 1;  //assuming data elements are enclosed in dbl-quotes
-    }
-    elseif (preg_match('/^(")?[a-zA-Z][-\w]*\1?(.)/', $text, $m)) { //guessing sep is first non-alpha-numeric char after alphanum start
-        $sep = $opt['sep'] = $m[2]; 
-        if ($m[1]=='"') $opt['quotes'] = 1;  //assuming data elements are enclosed in dbl-quotes
-    }
+        if (preg_match('/^(")?IDX\1?(;)/', $text, $m)) {
+            $sep = $opt['sep'] = $m[2];
+            if ($m[1]=='"') $opt['quotes'] = 1;  //assuming data elements are enclosed in dbl-quotes
+        }
+        elseif (preg_match('/^(")?[a-zA-Z][-\w]*\1?(.)/', $text, $m)) { //guessing sep is first non-alpha-numeric char after alphanum start
+            $sep = $opt['sep'] = $m[2]; 
+            if ($m[1]=='"') $opt['quotes'] = 1;  //assuming data elements are enclosed in dbl-quotes
+        }
     else $sep = ' ';
     $opt['sep'] =  $sep;
     if ($sep=='\t') $sep = "\t"; //catching tab character
@@ -324,10 +324,10 @@ function fxc_Table_Item( $data, $ref, $sep ) {
 // filter data array according to query (regular expression or PmWiki pagelist query syntax)
 function fxc_Query( &$data, $header, $opt ) {
     $query = ParseArgs($opt['query']);
-    $quin = (isset($query[''])) ? implode(',',$query['']) : ''; 
+    $quin = (isset($query[''])) ? implode(',',$query['']) : '';
     $quex = (isset($query['-'])) ? implode(',',$query['-']) : '';
     unset($query['#'], $query[''], $query['-']);
-    foreach($header as $k=>$v) {
+    foreach ($header as $k=>$v) {
         if (array_key_exists($k,$opt) && !empty($opt[$k])) {
             if (array_key_exists($k,$query))
                 $query[$k] = ",".$query[$k].",".$opt[$k]; //combine strings if we got double keys
@@ -336,16 +336,16 @@ function fxc_Query( &$data, $header, $opt ) {
             continue;
         }
     } 
-    foreach($header as $k=>$v) {
+    foreach ($header as $k=>$v) {
         if (!isset($query[$k])) $query[$k] = '';
-            if ($quin!='') $query[$k] .= ",".$quin;
-            if ($quex!='') $query[$k] .= ",-".$quex;
+        if ($quin!='') $query[$k] .= ",".$quin;
+        if ($quex!='') $query[$k] .= ",-".$quex;
     }
-    if(!array_filter($query)) return;
+    if (!array_filter($query)) return;
     // create regex patterns for including and excluding 
     $exclude = $include = array();
-    foreach($query as $field => $pat) {
-        if(!in_array($field, $header)) continue;
+    foreach ($query as $field => $pat) {
+        if (!in_array($field, $header)) continue;
         if ($opt['regex']==0) {
             list($incl, $excl) = GlobToPCRE($pat);
         }
@@ -355,8 +355,8 @@ function fxc_Query( &$data, $header, $opt ) {
     // check each data item in turn
     if (!empty($query))
     $matches = array();
-    foreach($data as $i=>$item) {
-        foreach($include as $k => $pat) {
+    foreach ($data as $i=>$item) {
+        foreach ($include as $k => $pat) {
             if ($pat=="") continue;
             if (isset($opt['case']) && $opt['case']==0)
                 $pat = "(?i)".$pat;
@@ -367,14 +367,15 @@ function fxc_Query( &$data, $header, $opt ) {
         }
     } 
     if ($opt['regex']==0) //for non-regex queries we may have exclude patterns
-    foreach($matches as $i=>$item) {
-        foreach($exclude as $k => $pat) {
-            if ($pat=="") continue;
-            if (isset($opt['case']) && $opt['case']==0)
-                { $pat = "(?i)".$pat; }
-            if (preg_match("($pat)",$item[$k])) {
-                unset($matches[$i]);
-                continue 2; }
+        foreach ($matches as $i=>$item) {
+            foreach ($exclude as $k => $pat) {
+                if ($pat=="") continue;
+                if (isset($opt['case']) && $opt['case']==0)
+                    { $pat = "(?i)".$pat; }
+                if (preg_match("($pat)",$item[$k])) {
+                    unset($matches[$i]);
+                    continue 2;
+                }
         } 
     } 
    $data = $matches;
@@ -395,8 +396,8 @@ function fxc_Multi_Column_Sort(&$data, $header, $sort, $order ) {
     $order = ParseArgs($order); unset($order['#']);
     $dir = $col = $flags = array();
     // set sort direction, general or by sort field
-    foreach($sort as $k=>$n) {
-        if(substr($n, 0,1)=='-') {
+    foreach ($sort as $k=>$n) {
+        if (substr($n, 0,1)=='-') {
             $sort[$k] = ltrim($n, '-'); $dir[$k] = SORT_DESC;
         } else { $sort[$k] = $n; $dir[$k] = SORT_ASC; }
         if (isset($order['-'])) $dir[$k] = SORT_DESC;
@@ -409,7 +410,7 @@ function fxc_Multi_Column_Sort(&$data, $header, $sort, $order ) {
     }
     // get columns for array_multisort(), set flags, pass to array_multisort() according to number of sort columns
     $so = array();
-    foreach($sort as $k=>$n) {
+    foreach ($sort as $k=>$n) {
         if (!in_array($n,$header)) { 
             $FoxMsgFmt[] = "Error: Could not sort Data. Invalid ''sort'' parameter!"; return; 
         }
@@ -445,7 +446,7 @@ function fxc_Multi_Column_Sort(&$data, $header, $sort, $order ) {
     }
 } //}}}
 
-function fxc_Auto_Table( $pagename, $data, $header, $opt, $num ) {
+function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
     // show specific columns only, or to exclude certain columns
     $source = $header['SOURCE'];
     if (isset($opt['show'])) 
@@ -486,11 +487,11 @@ function fxc_Auto_Table( $pagename, $data, $header, $opt, $num ) {
             else $opt['saveasnew'] = 'bottom';
         }
         $template = $tmpl."(:cell:)(:csv-delete target={\$\$SOURCE} idx={\$\$IDX} sep=\"".$opt['sep']."\":)".
-                              "(:csv-edit {\$\$SOURCE} idx={\$\$IDX} sep={$opt['sep']} ". 
-                              (isset($opt['env']) ? " env={$opt['env']} " : '').
-                              (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
-                              (isset($opt['saveasnew']) ? " saveasnew={$opt['saveasnew']} " : '').
-                              ":)\n";
+                          "(:csv-edit {\$\$SOURCE} idx={\$\$IDX} sep={$opt['sep']} ". 
+                          (isset($opt['env']) ? " env={$opt['env']} " : '').
+                          (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
+                          (isset($opt['saveasnew']) ? " saveasnew={$opt['saveasnew']} " : '').
+                          ":)\n";
     }
     else $template = $tmpl."\n";
     $head = $foot = $body = '';
@@ -505,7 +506,7 @@ function fxc_Auto_Table( $pagename, $data, $header, $opt, $num ) {
     if (isset($opt['sum'])) {
         if ($opt['sortable']==1) $class = "class='sortable-footer csvtable'"; //sortable-footer prevents last row from being included in sort
         $sumf = fxc_Fields($opt['sum'], $header);
-        foreach($header as $k=>$hd) {
+        foreach ($header as $k=>$hd) {
             $nr = ($k==0) ? "nr" : '';
             if ($hd=='IDX') 
                  $foot .= "(:cell$nr:) \n"; 
@@ -630,10 +631,10 @@ function fxc_Write_To_File ( $pagename, $filename, $text ) {
 } //}}}
 
 // make single text line into a valid csv record (row)
-function fxc_Make_CSV_Row( $row, $sep, $env='' ) {
+function fxc_Make_CSV_Row($row, $sep, $env='') {
     #show($row,'row');
     $items = str_getcsv($row, $sep, "\"", "`"); 
-    foreach($items as &$str) {
+    foreach ($items as &$str) {
        $str = fxc_Make_CSV_Item($str, $sep, $env);
     }
     $row = implode($sep, $items); //return row as string
@@ -645,7 +646,7 @@ function fxc_Make_CSV_Item( $str, $sep, $env='' ) {
     #show($str,'str 1');    
         $str = preg_replace('/\r\n?/', "\n", $str); // replace any CR or CRNR with NL
         $str = preg_replace('/(?<!`)"/','`"', $str); // escape quotes with ` accent char
-   # show($str,'str 2');    
+   # show($str,'str 2');
         $str = str_replace("\n", "\\", $str); // replace line breaks with \
         $str = trim($str); // remove any white spaces at start and end
         if (preg_match('/\n/',$str) OR strstr($str, $sep) OR $env==1) { 
@@ -660,7 +661,7 @@ function fxc_Make_CSV_Item( $str, $sep, $env='' ) {
 function fxc_Remove_Empty_Rows( $rows, $sep ) {
     if (!is_array($rows))
         $rows = array(0=>$rows);
-    foreach($rows as $k=>&$v) {
+    foreach ($rows as $k=>&$v) {
         $rows[$k]  = trim($v,"\r\n"); //not trimming seps at right!
         if (empty($rows[$k])) unset($rows[$k]);
     } 
@@ -710,7 +711,7 @@ function fxc_Array_Combine_Special( $a, $b, $pad = TRUE ) {
     return array_combine($a, $b);
 } //}}}
 
-function fxc_Get_Row_Key( $rows, $idx, $sep ) { 
+function fxc_Get_Row_Key($rows, $idx, $sep) {
     $idnr = array();
     $cnt = count($rows);
     for($k=1; $k < $cnt; $k++) {
@@ -727,20 +728,21 @@ function fxc_Get_Row_Key( $rows, $idx, $sep ) {
 
 //===================================//
 // csv mod button markup {[foxcsv... target={$$SOURCE} idx={$$IDX} label='&nbsp;X&nbsp;']} 
-Markup('foxcsvact','directives','/\(:csv-(del|delete|index|reindex|reformat|trim|quote|table|coldel|newcol|import|export)\\s+(.*?)\\s*:\)/',
-		"fxc_Action_Form_Fmt");
+Markup('foxcsvact', 'directives', '/\(:csv-(del|delete|index|reindex|reformat|trim|quote|table|coldel|newcol|import|export)\\s+(.*?)\\s*:\)/',
+       "fxc_Action_Form_Fmt");
 # Creates the HTML output for csv action button
 function fxc_Action_Form_Fmt( $m ) { 
-	global $FoxCSVConfig, $ScriptUrl, $EnablePathInfo;
-	extract($GLOBALS['MarkupToHTML']);
+    global $FoxCSVConfig, $ScriptUrl, $EnablePathInfo;
+    extract($GLOBALS['MarkupToHTML']);
+
     $act = $m[1];
-	$opt = ParseArgs($m[2]);
+    $opt = ParseArgs($m[2]);
     unset($opt['#']);
     $opt[''] = (array)@$opt[''];
     if ($act=='import') {
         $filename = array_shift($opt['']);
     }
-    $target =  $opt['target'] ?? array_shift($opt['']) ?? $pagename;
+    $target = $opt['target'] ?? array_shift($opt['']) ?? $pagename;
   #show($opt,'opt');
     if ($target=='') return;
     if ((empty($opt['idx']) || $opt['idx']=='IDX') && ($act=='del' || $act=='delete')) return;
@@ -757,30 +759,30 @@ function fxc_Action_Form_Fmt( $m ) {
             case 'del':
             case 'delete':  $imageurl = $FoxCSVConfig['deletebuttonurl']; 
                             $label = 'X'; $title = "$[Delete row] $idx";
-                        $onclickmessage = '$[Please confirm: Do you want to delete this csv row?]';
-                           $csum = '$[Table row deleted]'; break;
+                            $onclickmessage = '$[Please confirm: Do you want to delete this csv row?]';
+                            $csum = '$[Table row deleted]'; break;
             case 'index':   $label = '$[Index]'; $title = "$[Index] $target";
-                        $onclickmessage = '$[Please confirm: Do you want to index this csv table?]';
-                           $csum = '$[CSV Table Index added]'; break;
+                            $onclickmessage = '$[Please confirm: Do you want to index this csv table?]';
+                            $csum = '$[CSV Table Index added]'; break;
             case 'reindex': $label = '$[Re-Index]'; $title = "$[Re-index] $target";
-                        $onclickmessage = '$[Please confirm: Do you want to reindex this csv table?]';
-                           $csum = '$[CSV Table re-indexed]'; break;
-            case 'reformat': $label = '$[Reformat]'; $title = "$[Reformat with new separator] $target";
-                        $onclickmessage = '$[Please confirm: Do you want to reformat this csv table?]';
-                           $csum = '$[CSV Table reformatted]'; break;
-            case 'trim':   $label = '$[Trim Quotes]'; $title = "$[Trim surrounding quotes and white spaces from] $target"; 
-                        $onclickmessage = '$[Please confirm: Do you want to trim items of this csv table?]';
-                           $csum = '$[CSV Items trimmed]'; break;
-            case 'quote': $label = '$[Add Quotes]'; $title = "$[Enclose with double quote marks on] $target"; 
-                        $onclickmessage = '$[Please confirm: Do you want to add quote marks to items of this csv table?]';
+                            $onclickmessage = '$[Please confirm: Do you want to reindex this csv table?]';
+                            $csum = '$[CSV Table re-indexed]'; break;
+            case 'reformat':$label = '$[Reformat]'; $title = "$[Reformat with new separator] $target";
+                            $onclickmessage = '$[Please confirm: Do you want to reformat this csv table?]';
+                            $csum = '$[CSV Table reformatted]'; break;
+            case 'trim':    $label = '$[Trim Quotes]'; $title = "$[Trim surrounding quotes and white spaces from] $target"; 
+                            $onclickmessage = '$[Please confirm: Do you want to trim items of this csv table?]';
+                            $csum = '$[CSV Items trimmed]'; break;
+            case 'quote':   $label = '$[Add Quotes]'; $title = "$[Enclose with double quote marks on] $target"; 
+                            $onclickmessage = '$[Please confirm: Do you want to add quote marks to items of this csv table?]';
                             $csum = '$[CSV Items enclosed in quote marks]'; break;
             case 'table':   $label = '$[Make Table]'; $title = "$[Make Table] $target"; 
-                        $onclickmessage = '$[Please confirm: Do you want to convert csv table into simple table format?]';  break; 
-            case 'coldel':   $label = '$[Delete Column]'; $title = "$[Delete Column on] $target"; 
-                        $onclickmessage = '$[Please confirm: Do you want to delete this column from the table?]';
-                           $csum = '$[Column deleted]'; break;
-            case 'newcol':   $label = '$[Add New Column]'; $title = "$[Add New empty Column to] $target";
-                        $onclickmessage = '$[Please confirm: Do you want to add this new column to the table?]';
+                            $onclickmessage = '$[Please confirm: Do you want to convert csv table into simple table format?]';  break; 
+            case 'coldel':  $label = '$[Delete Column]'; $title = "$[Delete Column on] $target"; 
+                            $onclickmessage = '$[Please confirm: Do you want to delete this column from the table?]';
+                            $csum = '$[Column deleted]'; break;
+            case 'newcol':  $label = '$[Add New Column]'; $title = "$[Add New empty Column to] $target";
+                            $onclickmessage = '$[Please confirm: Do you want to add this new column to the table?]';
                             $csum = '$[New column added]'; break; 
             case 'import':  $label = '$[Import]'; $title = "$[Import] $target";
             case 'export':  $label = '$[Export]'; $title = "$[Export] $target";
@@ -801,9 +803,9 @@ function fxc_Action_Form_Fmt( $m ) {
         $target = (isset($tt[1])) ? $tpn."#".$tt[1] : $tpn;
         $TargetPageUrl = PUE(($EnablePathInfo) ? "$ScriptUrl/$target" : "$ScriptUrl?n=$tpn");
     }
-	// javascript delete message dialogue
-	$onclick = ($FoxCSVConfig['popups']==true)? "onclick='return confirm(\"{$onclickmessage}\")'" : "";
-	// construct HTML delete button as output, additional input given via foxfilter function
+    // javascript delete message dialogue
+    $onclick = ($FoxCSVConfig['popups']==true)? "onclick='return confirm(\"{$onclickmessage}\")'" : "";
+    // construct HTML delete button as output, additional input given via foxfilter function
     $out = "\n<form  class='csvform' name='FoxCSV-$act' action='{$TargetPageUrl}' method='post' >".
                 "<input type='hidden' name='foxpage' value='{$pagename}' />".
                 "<input type='hidden' name='foxname' value='CSVUpdate' />".
@@ -830,7 +832,7 @@ function fxc_Action_Form_Fmt( $m ) {
                 ($act=='import' ? " to:<input type='text' size=10 name='importto' value='' />" : "").
                 ($act=='export' ? " to:<input type='text' size=10 name='exportto' value='' />" : "").
                 "</form>";
-	return Keep(FmtPagename($out,$tpn));
+    return Keep(FmtPagename($out,$tpn));
 } //}}}
 
 // gets text content from csv file and fills template
@@ -861,13 +863,13 @@ function fxc_Preprocess_Input($pagename, &$fx) {
     //submit post2 'Save as New': change csvact to 'addnew'
     if (isset($fx['post2'])) $fx['csvact'] = 'addnew';
     if ($fx['csvact']!='replace' OR $fx['csvact']!='addnew') return;
- 	// get header field names and sep from template (reverse engineer)
-	// correct any field input from these names
+    // get header field names and sep from template (reverse engineer)
+    // correct any field input from these names
     $temp = $fx['foxtemplate']; #show($temp,'template');
     $env = (!empty($fx['csvenv'])) ? 1 : 0;
     if (preg_match_all('~\{\$\$(.*?)\}(.)?~', $temp, $m)) {
         $sep = $m[2][0]; 
-        foreach($m[1] as $k=>$name) {
+        foreach ($m[1] as $k=>$name) {
             if (!empty($fx[$name])) {
                 $fx[$name] = fxc_Make_CSV_Item($fx[$name], $sep, $env);
             }
@@ -879,9 +881,9 @@ function fxc_Preprocess_Input($pagename, &$fx) {
 
 // processing various csv-modifying actions via parameter 'csvact=...' from a fox form (i.e. from fxc_Action_Form_Fmt)
 // called via 'foxaction=csv' from FoxProcessTargets() in fox.php 
-function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
-	global $FoxDebug, $FoxCSVConfig, $FoxMsgFmt; 
-    if($FoxDebug) { echo "<br /><i>FoxCSV_Update></i> "; show($fx['csvidx'],'idx'); show($newline,'newline'); }
+function FoxCSV_Update($pagename, $text, $newline, $fx) {
+    global $FoxDebug, $FoxCSVConfig, $FoxMsgFmt; 
+    if ($FoxDebug) { echo "<br /><i>FoxCSV_Update></i> "; show($fx['csvidx'],'idx'); show($newline,'newline'); }
     if (empty($fx['csvact'])) { 
         $FoxMsgFmt[] = "Error: no csv update action provided"; 
         return $text; 
@@ -890,14 +892,14 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
     $env = $fx['csvenv'] ?? '';
     if (isset($fx['csvfile']) && $fx['csvfile']==1) 
         $text = fxc_Get_Text($pagename, $fx['target']);
-	$text = trim($text,"\n\r");
+    $text = trim($text,"\n\r");
     list($sep, $fx) = fxc_Set_Sep($text, $fx);
         if ($sep=='\t') $sep = "\t";
     $rows = explode("\n", $text);
     $rows = fxc_Remove_Empty_Rows($rows, $sep);
     $cnt = count($rows);
-    if($FoxDebug >1) show($rows,'rows old'); #show($idx,'idx');
-	if (empty($rows)) return $text;
+    if ($FoxDebug >1) show($rows,'rows old'); #show($idx,'idx');
+    if (empty($rows)) return $text;
     // make idx for new item for custom form submissions
     if ($fx['csvact']=='addnew') {
         if ($idx=='new') $idx = $cnt; //add to bottom
@@ -927,7 +929,7 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
         case 'replace':
             if ($idx=='0') {  // normalise header fields!
                 $row = fxc_Normalise_Header(str_getcsv($newline, $sep));
-                foreach($row as &$it) $it = fxc_Make_CSV_Item($it, $sep, $fx);
+                foreach ($row as &$it) $it = fxc_Make_CSV_Item($it, $sep, $fx);
                 $rows[0] = implode($sep, $row);
             }
             else  $rows[$idx] = $newline;
@@ -938,7 +940,7 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                 $key = fxc_Get_Row_Key($rows, $idx, $sep); 
                 unset($rows[$key]);
                 $FoxMsgFmt[] = "CSV row deleted";
-            break;
+                break;
         // add a first field with index numbers and 'IDX' in the header row    
         case 'index':  
                 if (preg_match('/^IDX/', $rows[0])) FoxAbort($fx['redir'], "Error: IDX field already present, table may need re-indexing instead. No index added.");
@@ -948,7 +950,7 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                     $rows[$i] = $n.$sep.$rows[$i];
                 } 
                 $FoxMsgFmt[] = "CSV table index added";
-            break;
+                break;
         // refresh index numbers if csv table has index (IDX column as first column)     
         case 'reindex': 
                 if (preg_match("/^(?!IDX$sep).*/", $rows[0])) {
@@ -965,7 +967,7 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                     }
                 }
                 $FoxMsgFmt[] = "CSV table reindexed";
-            break;
+                break;
         // replace separator with new separator    
         case 'reformat':
                 if (empty($fx['newsep']) OR strlen($fx['newsep'])>1) {
@@ -973,13 +975,13 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                     return $text;
                 } 
                 if ($fx['newsep']=='\t') $fx['newsep'] = "\t";
-                foreach($rows as &$row) {
+                foreach ($rows as &$row) {
                     $row = str_getcsv($row, $sep, "\"", "`");  
-                    foreach($row as &$it) $it = fxc_Make_CSV_Item($it, $sep, $env);
+                    foreach ($row as &$it) $it = fxc_Make_CSV_Item($it, $sep, $env);
                     $row = implode($fx['newsep'], $row);
                 }
                 $FoxMsgFmt[] = "CSV table reformatted";
-            break;
+                break;
         // rewrite csv data table with PmWiki simple table markup    
         case 'table': 
                 $rows[0] = "||class='sortable csvtable'\n||!".preg_replace("~(\s?$sep\s*)~", " ||!", $rows[0])." ||";
@@ -987,22 +989,22 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                 for($k=1; $k<count($rows); $k++) 
                     $rows[$k] = "||".preg_replace("~(\s?$sep\s*)~", " ||", $rows[$k])." ||";
                 $FoxMsgFmt[] = "CSV table converted to simple table";
-            break;
+                break;
         // trim white spaces around items    
         case 'trim': 
-                foreach($rows as &$row) {
+                foreach ($rows as &$row) {
                     $row = str_getcsv($row, $sep, "\"", "`"); 
-                    foreach($row as &$it) $it = fxc_Make_CSV_Item($it, $sep);
+                    foreach ($row as &$it) $it = fxc_Make_CSV_Item($it, $sep);
                     $row = implode($sep, $row);
                 }
                 $FoxMsgFmt[] = "CSV items trimmed";
-            break;;
+                break;;
         //add double quotes to start and end of each item    
         case 'quote': 
-                foreach($rows as &$row) {
+                foreach ($rows as &$row) {
                     #if ($k==0) continue; //excludes header
                     $row = str_getcsv($row, $sep, "\"", "`"); 
-                    foreach($row as &$it) {
+                    foreach ($row as &$it) {
                         $it = fxc_Make_CSV_Item($it, $sep, 1);
                        # if (!preg_match('/^".*?"$/',$it))
                        #     $it = "\"$it\"";
@@ -1010,19 +1012,19 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                     $row = trim(implode($sep,$row));
                 } 
                 $FoxMsgFmt[] = "Double Quotes added to CSV items";
-            break;
+                break;
         // remove entire data column from csv table    
         case 'coldel':  
-                if(empty($fx['coldel'])) FoxAbort($fx['redir'], "Error: column not specified");
+                if (empty($fx['coldel'])) FoxAbort($fx['redir'], "Error: column not specified");
                 $col = (int)$fx['coldel'] - 1;
-                foreach($rows as &$row) {
+                foreach ($rows as &$row) {
                     $row = str_getcsv($row, $sep, "\"", "");
                     unset($row[$col]);
-                    foreach($row as &$it) $it = fxc_Make_CSV_Item($it, $sep);
+                    foreach ($row as &$it) $it = fxc_Make_CSV_Item($it, $sep);
                     $row = trim(implode($sep,$row));
                 } 
                 $FoxMsgFmt[] = "CSV table column deleted";
-            break;
+                break;
         // add new column with header name and empty column fields
         case 'newcol': 
                 $name = (!empty($fx['colname'])) ? $fx['colname'] : 'New'; // 'New' as placeholder, because no name was given
@@ -1035,9 +1037,9 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                 $num = ($fx['addafter']=='') ? $hdcnt : $fx['addafter'];
                 if ((int)$num > (int)$hdcnt) $num = $hdcnt; //column number should not be higher than count, i.e. just one higher than actual
                 //for each row: make csv array, slice into two, add the new between and rebuild row
-                foreach($rows as $k=>$v) {
+                foreach ($rows as $k=>$v) {
                     $row = str_getcsv($v, $sep);
-                    foreach($row as &$it) $it = fxc_Make_CSV_Item($it, $sep); 
+                    foreach ($row as &$it) $it = fxc_Make_CSV_Item($it, $sep); 
                     $rwa = array_slice($row,0,(int)$num);
                     $rwb = array_slice($row,(int)$num);
                     $new = ($k==0) ? $name : "";
@@ -1046,24 +1048,24 @@ function FoxCSV_Update( $pagename, $text, $newline, $fx ) {
                     $rows[$k] = $a.$new.$b;
                 } 
                 $FoxMsgFmt[] = "CSV table column added";
-            break;
+                break;
         // save all to csv file
         case 'export': 
                 $fx['target'] = $fx['exportto'];
                 $FoxMsgFmt[] = "Success: exported text to file {$fx['exportto']}";
-            break;
+                break;
     }
     if ($FoxDebug >1) show($rows,'rows new'); #exit;
     //rebuild text from rows array
     $text = implode("\n", $rows);
-	$text = rtrim($text);
+    $text = rtrim($text);
     if (isset($fx['csvfile']) && $fx['csvfile']==1) {
         if ($GLOBALS['FoxCSVConfig']['fileedit']==0) 
              FoxAbort($fx['redir'],"Error: file editing is not allowed");
         else fxc_Write_To_File($pagename, $fx['target'], $text);
         return '';
     }
-	return $text;
+    return $text;
 } //}}}
 
 ////----- FoxCSVEdit 2024-04-06 -----//////
@@ -1078,188 +1080,189 @@ $FmtPV['$EditBase'] ='$GLOBALS["EditBase"]';
 // make csv edit form by setting page vars and loading edit form
 $HandleActions['foxcsvedit'] = 'fxc_Edit_Form';
 function fxc_Edit_Form($pagename) {
-	global $EditSource, $EditTarget, $EditBase, $EditSection, $EditItem, $InputValues;
-	$args = RequestArgs($_POST); // fetch POST arguments
-	if (empty($args['source'])) FoxAbort($pagename,"%red%'''Error:''' no source given");
-	//DEBUG    show($args,'edit args');
-	// initialising variables
-	$section = $args['section'] ?? ''; 
+    global $EditSource, $EditTarget, $EditBase, $EditSection, $EditItem, $InputValues;
+    $args = RequestArgs($_POST); // fetch POST arguments
+    if (empty($args['source'])) FoxAbort($pagename,"%red%'''Error:''' no source given");
+    //DEBUG    show($args,'edit args');
+    // initialising variables
+    $section = $args['section'] ?? ''; 
     // check for file edit or page (section) edit
     if (preg_match('/\.(csv|txt)$/i', $args['source'], $m)) {
-		$source = $args['source'];
-		$EditSource = $target = $source;
+        $source = $args['source'];
+        $EditSource = $target = $source;
         $csvfile = 1; // file edit flag, will be passed on at form submit to Fox processing
     } else {
-		$csvfile = 0;
+        $csvfile = 0;
         $ss = explode('#', $args['source']);
         $source = ($ss[0]=='') ? $pagename : $ss[0];
-        if (isset($ss[1]))	{
+        if (isset($ss[1])) {
             $section = "#".$ss[1];
         }
-       # else $section = $source;
+        # else $section = $source;
     }
-	$EditSource = $source;
-	$EditSection = $section;
-	$EditItem = $idx = $args['idx'] ?? '';
-	if (empty($idx)) FoxAbort($pagename,"%red%'''Error:''' no idx given");
-	$csv = (isset($args['csv'])) ? explode(",", $args['csv']) : '';
-	$target = $args['target'] ?? $source;
-	$EditTarget = MakePagename($pagename, $target); 
-	$EditBase = $base = $args['base'] ?? $EditTarget;	
-	$fulltarget = (isset($section) && strstr($section,'#')) ? $target.$section : $target;
-	// open target page or file, get text section, set InputValues for 'text' and 'mark' controls
-	$text = fxc_Get_Text( $pagename, $fulltarget);
-	if (empty($text)) FoxAbort($pagename,"$[Error: cannot find edit template] $fulltarget");
-	// get rows array from text
-	$text = trim($text,"\n\r");
-	$rows = explode("\n", $text); //get rows
-	// get csv separator/delimiter 
-	list($sep, $args) = fxc_Set_Sep( $text, $args);
-	if ($idx=='header') $idx = 0;
-	$data = fxc_Parse_CSV( $text, $sep );
+    $EditSource = $source;
+    $EditSection = $section;
+    $EditItem = $idx = $args['idx'] ?? '';
+    if (empty($idx)) FoxAbort($pagename,"%red%'''Error:''' no idx given");
+    $csv = (isset($args['csv'])) ? explode(",", $args['csv']) : '';
+    $target = $args['target'] ?? $source;
+    $EditTarget = MakePagename($pagename, $target); 
+    $EditBase = $base = $args['base'] ?? $EditTarget;
+    $fulltarget = (isset($section) && strstr($section,'#')) ? $target.$section : $target;
+    // open target page or file, get text section, set InputValues for 'text' and 'mark' controls
+    $text = fxc_Get_Text($pagename, $fulltarget);
+    if (empty($text)) FoxAbort($pagename,"$[Error: cannot find edit template] $fulltarget");
+    // get rows array from text
+    $text = trim($text,"\n\r");
+    $rows = explode("\n", $text); //get rows
+    // get csv separator/delimiter 
+    list($sep, $args) = fxc_Set_Sep($text, $args);
+    if ($idx=='header') $idx = 0;
+    $data = fxc_Parse_CSV($text, $sep);
     $rowcnt = count($data);
-	$header = $data[0];
+    $header = $data[0];
     $multi = (isset($args['multiline'])) ? fxc_Fields($args['multiline'], $header) : array();
-	foreach ($header as $k=>$v)  { 
-		if (preg_match('/^[\d]|[^\-a-zA-Z0-9_]/', $v, $m)) 
-			FoxAbort($pagename, "'''Error: invalid header name(s)!''' (No  digits at beginning, no spaces, no punctuations)");
-	}
-	$key = ($header[0]=='IDX') ? fxc_Get_Row_Key($rows, $idx, $sep) : $idx; 
-	$idxtitle = " #$idx";
-    $idx0 = $idx; 
-	$act = 'replace';
-	if (substr($idx,0,3)=='new') {
-		$act = 'addnew';
-		if ($idx=='newtop') { 
-			$idx = $key; 
-			$key = 0;     //top insert (below header)
-			$idxtitle = " to top";
-		}
-		if ($idx=='new') { 
-			$idx = $key; 
-			$key = $rowcnt;  //bottom insert (below last)
-			$idxtitle = " to bottom";
-		}
-		if (preg_match('/new(\d+)/', $idx, $m))
-			$key = $m[1]; //insert new after row $key
-		if ($header[0]=='IDX') 
-			 $data[$key] = array($key);
-		else $data[$key] = array(); 
-	} 
-	if (!array_key_exists($key, $data)) 
-		 $item = array();
-	else $item = $data[$key];
-	// set InputValues for the item (csv data from row) to fill form's text fields [input defaults requests=1]
-	foreach($item as $k => $value) {
-		$fn = $header[$k] ?? '';
-		if (!isset($InputValues[$fn]))
-		$InputValues[$fn] = trim(str_replace('$','&#036;',htmlspecialchars($value,ENT_NOQUOTES)));
-	}
-	//note: we use hardcoded form as default, if no formpage is set via form= parameter
-	if (isset($args['form'])) {
-		$formpage = $args['form'];
+    foreach ($header as $k=>$v)  { 
+        if (preg_match('/^[\d]|[^\-a-zA-Z0-9_]/', $v, $m)) 
+            FoxAbort($pagename, "'''Error: invalid header name(s)!''' (No  digits at beginning, no spaces, no punctuations)");
     }
-	//retrieve edit form from page or page section
-	if (!empty($formpage)) {
+    $key = ($header[0]=='IDX') ? fxc_Get_Row_Key($rows, $idx, $sep) : $idx;
+    $idxtitle = " #$idx";
+    $idx0 = $idx; 
+    $act = 'replace';
+    if (substr($idx,0,3)=='new') {
+        $act = 'addnew';
+        if ($idx=='newtop') { 
+            $idx = $key; 
+            $key = 0;     //top insert (below header)
+            $idxtitle = " to top";
+        }
+        if ($idx=='new') { 
+            $idx = $key; 
+            $key = $rowcnt;  //bottom insert (below last)
+            $idxtitle = " to bottom";
+        }
+        if (preg_match('/new(\d+)/', $idx, $m))
+            $key = $m[1]; //insert new after row $key
+        if ($header[0]=='IDX') 
+             $data[$key] = array($key);
+        else $data[$key] = array(); 
+    } 
+    if (!array_key_exists($key, $data)) 
+         $item = array();
+    else $item = $data[$key];
+    // set InputValues for the item (csv data from row) to fill form's text fields [input defaults requests=1]
+    foreach ($item as $k => $value) {
+        $fn = $header[$k] ?? '';
+        if (!isset($InputValues[$fn]))
+        $InputValues[$fn] = trim(str_replace('$','&#036;',htmlspecialchars($value,ENT_NOQUOTES)));
+    }
+    //note: we use hardcoded form as default, if no formpage is set via form= parameter
+    if (isset($args['form'])) {
+        $formpage = $args['form'];
+    }
+    //retrieve edit form from page or page section
+    if (!empty($formpage)) {
         if (substr($formpage,0,1)=='#') $formpage = $pagename.$formpage;
-		$formname = MakePagename($pagename, $formpage);
-		if (PageExists($formname)) {
-			$eform = RetrieveAuthSection($formname, $formpage);
-			if(empty($eform)) FoxAbort($pagename,"$[Error: cannot find edit template] $formpage");
-		}
-	} 
+        $formname = MakePagename($pagename, $formpage);
+        if (PageExists($formname)) {
+            $eform = RetrieveAuthSection($formname, $formpage);
+            if (empty($eform)) FoxAbort($pagename,"$[Error: cannot find edit template] $formpage");
+        }
+    } 
 ## edit form //we got no form page, so we use hardcoded form, to edit csv row:
-	if (empty($eform)) { 
-		$eform = "(:fox eform foxaction=csv csvact=$act csvidx=$key target=$fulltarget redirect=$base:)";
-        // set template	
+    if (empty($eform)) {
+        $eform = "(:fox eform foxaction=csv csvact=$act csvidx=$key target=$fulltarget redirect=$base:)";
+        // set template
         $tv= ''; foreach ($header as $n) 
         $tv .= "{\$\$".$n."}$sep"; //no space after seperator!
         $eform .= "(:foxtemplate \"".rtrim($tv,$sep)."\":)"; //trim trailing sep! trailing sep stays from text row!
         $eform .= "(:input defaults request=1:)(:input hidden csum '$[Updated CSV Table]':)(:input hidden rowcnt $rowcnt:)"
-                    ."(:input hidden csvsep $sep:)(:input hidden csvfile $csvfile:)".
-                    (isset($args['env']) ? "(:input hidden csvenv 1:)" : '').
-            (substr($idx0,0,3)=='new' ? "\n!!!Adding csv record " : "\n!!!Editing csv record ").
-                ($idx0==0 ? "Header": $idxtitle)." on {$fulltarget}";
-            // set input fields
-            foreach ($header as $name) {
-                $area = (in_array($name, $multi)) ? 'area cols=40 rows=4' : ' size=40';
-                if (isset($InputValues[$name]) && preg_match('/\n/',$InputValues[$name]))
-                    $area = 'area cols=40 rows=4';
-                if (is_array($csv)) {
-                    if (in_array($name, $csv))
-                            $eform .= "\n|| $name:||(:input text$area $name :) ||";
-                    else $eform .= "(:input hidden $name:)";
-                } else {
-                    if ($name=='IDX') $eform .= "(:input hidden IDX $idx:)"; //IDX field is not for editing
-                    else $eform .= "\n|| $name:||(:input text$area $name :) ||";
-                }
+                  ."(:input hidden csvsep $sep:)(:input hidden csvfile $csvfile:)".
+                  (isset($args['env']) ? "(:input hidden csvenv 1:)" : '').
+                  (substr($idx0,0,3)=='new' ? "\n!!!Adding csv record " : "\n!!!Editing csv record ").
+                  ($idx0==0 ? "Header": $idxtitle)." on {$fulltarget}";
+        // set input fields
+        foreach ($header as $name) {
+            $area = (in_array($name, $multi)) ? 'area cols=40 rows=4' : ' size=40';
+            if (isset($InputValues[$name]) && preg_match('/\n/',$InputValues[$name]))
+                $area = 'area cols=40 rows=4';
+            if (is_array($csv)) {
+                if (in_array($name, $csv))
+                    $eform .= "\n|| $name:||(:input text$area $name :) ||";
+                else $eform .= "(:input hidden $name:)";
+            } else {
+                if ($name=='IDX')
+                    $eform .= "(:input hidden IDX $idx:)"; //IDX field is not for editing
+                else
+                    $eform .= "\n|| $name:||(:input text$area $name :) ||";
             }
+        }
         $eform .= "\n|| ||(:input submit post '$[Save]':)". 
             (isset($args['saveasnew']) ? "&nbsp; (:input submit post2 '$[Save as New]':)(:input hidden saveasnew ".$args['saveasnew'].":)": '').
             "&nbsp; (:input submit cancel '$[Cancel]':) ||(:foxend eform:)";
     }
     // make HTML editform page
-	global $FmtV, $FoxEditForm, $PageStartFmt, $FoxPageEditFmt, $PageEndFmt;
-	$FmtV['$FoxEditFrm'] = MarkupToHTML($pagename, $eform);
-	$FoxPageEditFmt = '$FoxEditFrm';
-	$HandleEditFmt = array(&$PageStartFmt, &$FoxPageEditFmt, &$PageEndFmt);
-	PrintFmt($pagename, $HandleEditFmt);
-	exit;	
-} //}}}	
+    global $FmtV, $FoxEditForm, $PageStartFmt, $FoxPageEditFmt, $PageEndFmt;
+    $FmtV['$FoxEditFrm'] = MarkupToHTML($pagename, $eform);
+    $FoxPageEditFmt = '$FoxEditFrm';
+    $HandleEditFmt = array(&$PageStartFmt, &$FoxPageEditFmt, &$PageEndFmt);
+    PrintFmt($pagename, $HandleEditFmt);
+    exit;
+} //}}}
 
 Markup('foxcsveditform','directives','/\\(:csv-edit\\s*(.*?)\\s*:\\)/', "fxc_Edit_Button");
 // make (:csv-edit <source> <idx=..> ...:) form button HTML
 function fxc_Edit_Button ($m) {
-	extract($GLOBALS['MarkupToHTML']);
-	$PageUrl = PageVar($pagename, '$PageUrl');
-	$args = ParseArgs($m[1]);
-	$args[''] = (array)@$args[''];
-	$source =  $args['source'] ?? array_shift($args['']); 
-	$idx = $args['idx'] ??  array_shift($args['']);
-	$label =  $args['label'] ?? array_shift($args['']);
-	$csv = $args['csv'] ?? '';
-	$sep = $args['sep'] ?? '';
-	$env = $args['env'] ?? '';
-	$form = $args['form'] ?? '';
+    extract($GLOBALS['MarkupToHTML']);
+    $PageUrl = PageVar($pagename, '$PageUrl');
+    $args = ParseArgs($m[1]);
+    $args[''] = (array)@$args[''];
+    $source =  $args['source'] ?? array_shift($args['']); 
+    $idx = $args['idx'] ??  array_shift($args['']);
+    $label =  $args['label'] ?? array_shift($args['']);
+    $csv = $args['csv'] ?? '';
+    $sep = $args['sep'] ?? '';
+    $env = $args['env'] ?? '';
+    $form = $args['form'] ?? '';
     $multiline = $args['multiline'] ?? '';
     $saveasnew = $args['saveasnew'] ?? '';
-	//title (tooltip)
-    
-	if (!empty($idx)||$idx==='0') { 
-		if (substr($idx,0,3)=='new') {
+    //title (tooltip)
+    if (!empty($idx)||$idx==='0') { 
+        if (substr($idx,0,3)=='new') {
             if (isset($label)) $title = $label;
             else $title = "$[Add new item]";
         }
-		elseif ($idx=='header') $title = "$[Edit header]";
-		else $title = "$[Edit item] $idx";
-	}
-	else if (!empty($source)) $title = "$[Edit] ".$source;
-	$title = $args['title'] ?? $title ?? '';
-	$target = $args['target'] ?? '';
-	$base = $args['base'] ?? $pagename; //return to base
-	if(empty($label)) $label = "$[Edit]";
-	$imageurl = $GLOBALS['FoxCSVConfig']['editbuttonurl']; 
-	$inputs = [
-		'source' => $source, 
-		'idx' => $idx, 
-		'sep' => $sep, 
-		'env' => $env, 
-		'csv' => $csv, 
-		'base' => $base,
-		'form' => $form, 
-		'target' => $target,
+        elseif ($idx=='header') $title = "$[Edit header]";
+        else $title = "$[Edit item] $idx";
+    }
+    else if (!empty($source)) $title = "$[Edit] ".$source;
+    $title = $args['title'] ?? $title ?? '';
+    $target = $args['target'] ?? '';
+    $base = $args['base'] ?? $pagename; //return to base
+    if (empty($label)) $label = "$[Edit]";
+    $imageurl = $GLOBALS['FoxCSVConfig']['editbuttonurl']; 
+    $inputs = [
+        'source' => $source, 
+        'idx' => $idx, 
+        'sep' => $sep, 
+        'env' => $env, 
+        'csv' => $csv, 
+        'base' => $base,
+        'form' => $form, 
+        'target' => $target,
         'multiline' => $multiline,
         'saveasnew' => $saveasnew,
-	];
-	$out = "\n<form  class='csvform' name='FoxCSV-edit' action='{$PageUrl}' method='post' >".
-			"<input type='hidden' name='action' value='foxcsvedit' />";
-	foreach($inputs as $n=>$v) if (!empty($v)) {
-		$out .= "<input type='hidden' name=$n value=$v />";
-	}
+    ];
+    $out = "\n<form class='csvform' name='FoxCSV-edit' action='{$PageUrl}' method='post' >".
+            "<input type='hidden' name='action' value='foxcsvedit' />";
+    foreach ($inputs as $n=>$v) if (!empty($v)) {
+        $out .= "<input type='hidden' name=$n value=$v />";
+    }
     $out .= (!empty($imageurl) ? "<input type='image' name='post' alt='$label' class='inputbutton' src=$imageurl title='$title'/>"
     : "<input type='submit' name='post' value='$label' title='$title' class='inputbutton'/>");
-    $out .=	"</form>";
-	return Keep(FmtPagename($out,$pagename));
+    $out .= "</form>";
+    return Keep(FmtPagename($out,$pagename));
 } //}}}
 
 //EOF
