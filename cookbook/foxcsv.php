@@ -153,6 +153,8 @@ function fxc_Display ($m) {
 
     // filter data. Query-filter is constructed from query string and/or strings from header field names submitted
     $opt['query'] = $opt['query'] ?? $opt['filter'] ?? $opt['q'] ?? "";
+    if (array_key_exists('activefield', $opt))
+        $opt[$opt['activefield']] = "-0";
     fxc_Query($data, $header, $opt); 
 
     // sort data
@@ -550,12 +552,20 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
                     $row[$k] = number_format($it, $opt['decimals'], $opt['decisep'], $opt['thousep']);
 
     }
+    $activefield = '';
+    if (array_key_exists('activefield', $opt) && in_array($opt['activefield'], $header)){
+        $activefield = $opt['activefield'];
+    }
+
     foreach ($header as $k=>$v) {
-        $nr = ($k==0) ? "nr" : '';
-        if (in_array($v, $calf)) $al='center'; 
-        elseif (in_array($v, $ralf)) $al='right';
-        else $al='left';
-        $tmpl .= "(:cell$nr align=$al:){\$\$".$v."} \n";
+        if (empty($activefield) || (!empty($activefield) && $activefield != $v))
+        {
+            $nr = ($k==0) ? "nr" : '';
+            if (in_array($v, $calf)) $al='center'; 
+            elseif (in_array($v, $ralf)) $al='right';
+            else $al='left';
+            $tmpl .= "(:cell$nr align=$al:){\$\$".$v."} \n";
+        }
     }
     if ($opt['editlinks']==1 && CondAuth($pagename,'edit')) { // insert delete and edit links for each row
         
@@ -570,10 +580,12 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
         $template = $tmpl."(:cell:)".
                     ($multidelete ? "(:csv-multidelete-check idx={\$\$IDX}:)" : "").
                     "(:csv-delete target={\$\$SOURCE} idx={\$\$IDX} sep=\"".$opt['sep']."\"".
+                    (empty($activefield) ? '' : " activefield={$activefield} ").
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').":)".
                     "(:csv-edit {\$\$SOURCE} idx={\$\$IDX} sep={$opt['sep']} ". 
                     (isset($opt['env']) ? " env={$opt['env']} " : '').
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
+                    (empty($activefield) ? '' : " activefield={$activefield} ").
                     (isset($opt['saveasnew']) ? " saveasnew={$opt['saveasnew']} " : '').
                     ":)\n";
     }
@@ -644,13 +656,16 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
             $class = "class='sortable csvtable'"; // last row is included for sorting
         $htpl .= "(:table $class :)\n"; //sortable tables need to be enabled in config via: $EnableSortable = 1;
         foreach ($header as $k=>$v) {
-            $nr = ($k==0) ? "nr" : '';
-            if ($v=='IDX') $v = $opt['idxname']; // give IDX a friendlier name, but IDX stays internally as special name
-            if ($v=='Text') $v = $opt['textname'];
-            if (in_array($v, $calf)) $al='center';
-            elseif (in_array($v, $ralf)) $al='right';
-            else $al='left';
-            $htpl .= "(:head$nr align=$al:)$v \n";
+            if (empty($activefield) || (!empty($activefield) && $activefield != $v))
+            {
+                $nr = ($k==0) ? "nr" : '';
+                if ($v=='IDX') $v = $opt['idxname']; // give IDX a friendlier name, but IDX stays internally as special name
+                if ($v=='Text') $v = $opt['textname'];
+                if (in_array($v, $calf)) $al='center';
+                elseif (in_array($v, $ralf)) $al='right';
+                else $al='left';
+                $htpl .= "(:head$nr align=$al:)$v \n";
+            }
         }
         $header['SOURCE'] = $source; // add SOURCE back in
         if ($opt['editlinks']==1 && CondAuth($pagename,'edit')) {
@@ -659,8 +674,10 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
                     (CondAuth($pagename,'admin')? "(:csv-edit {\$\$SOURCE} idx=header sep=\"".$opt['sep']."\" :) | " : ""). 
                     "(:csv-edit {\$\$SOURCE} idx='$nw' sep=\"".$opt['sep']."\" label='Add +'".
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
+                    (empty($activefield) ? '' : " activefield={$opt['activefield']} ").
                     ":)".
                     (isset($multidelete) ? "(:csv-multidelete target={\$\$SOURCE} sep=\"".$opt['sep']."\"".
+                    (empty($activefield) ? '' : " activefield={$opt['activefield']} ").
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').":)" : '');
         }
         $head .= FoxVarReplace($pagename, $header, '', $htpl)."\n";
@@ -963,6 +980,7 @@ function fxc_Action_Form_Fmt( $m ) {
                 ($act=='newcol' ? "New:<input type='text' size=9 name='colname' value='' />" : "").
                 ($act=='newcol' ? " After:<input type='text' size=1 name='addafter' value='' />" : "").
                 "<input type='hidden' name='target' value='$target' />".
+                (($act=='delete' || $act=='multidelete') && isset($opt['activefield']) ? "<input type='hidden' name='activefield' value='{$opt['activefield']}' />" : "").
                 "<input type='hidden' name='csvidx' value='$idx' />". 
                 ($act!='import' ? "<input type='hidden' name='redir' value='$pagename' />" : "").
                 (!empty($imageurl) ? "<input type='image' name='post' alt='$label' class='inputbutton' src=$imageurl title='$title' {$onclick} />"
@@ -1405,6 +1423,11 @@ function fxc_Edit_Form($pagename) {
     } 
 ## edit form //we got no form page, so we use hardcoded form, to edit csv row:
     if (empty($eform)) {
+        if (array_key_exists('activefield', $args) && in_array($args['activefield'], $header)){
+            $activefield = $args['activefield'];
+            $afkey = array_search($activefield, $data[0]);
+            $activefieldval = $data[$key][$afkey] ?? 1;
+        }
         $eform = "(:fox eform foxaction=csv csvact=$act csvidx=$key target=$fulltarget redirect=$base:)";
         // set template
         $tv= fxc_Auto_Template($header, $sep);
@@ -1426,6 +1449,8 @@ function fxc_Edit_Form($pagename) {
             } else {
                 if ($name=='IDX')
                     $eform .= "(:input hidden IDX $idx:)"; //IDX field is not for editing
+                elseif (isset($activefield) && $name==$activefield)
+                    $eform .= "(:input hidden $activefield $activefieldval:)";
                 else
                     $eform .= "\n|| $name:||(:input text$area $name :) ||";
             }
@@ -1469,6 +1494,8 @@ function fxc_Edit_Button ($m) {
     $form = $args['form'] ?? '';
     $multiline = $args['multiline'] ?? '';
     $saveasnew = $args['saveasnew'] ?? '';
+    $activefield = $args['activefield'] ?? '';
+
     //title (tooltip)
     if (!empty($idx)||$idx==='0') { 
         if (substr($idx,0,3)=='new') {
@@ -1497,6 +1524,7 @@ function fxc_Edit_Button ($m) {
         'target' => $target,
         'multiline' => $multiline,
         'saveasnew' => $saveasnew,
+        'activefield' => $activefield,
     ];
     $out = "\n<form class='csvform' name='FoxCSV-edit' action='{$PageUrl}' method='post' >".
             "<input type='hidden' name='action' value='foxcsvedit' />";
