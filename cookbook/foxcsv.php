@@ -186,7 +186,10 @@ function fxc_Display ($m) {
         $out = fxc_Fill_Template($pagename, $data, $header, $template, $opt);
     }
     // return output as wiki markup, Markup to HTML will be done later by PmWiki
-    return $out;
+    // Pierre Racine
+    // This fix all conditional markup (:if:)(:else:) interpretation problems
+    $out = MarkupToHTML($pagename, $out);
+    return Keep($out);
 } //}}}
 
 function fxc_Fill_Template($pagename, $data, $header, $template, $opt) {
