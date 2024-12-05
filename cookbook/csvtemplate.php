@@ -352,6 +352,26 @@ function CSVTemplateGetFilledTemplate($template, $fields)
     return $string;
 }
 
+function CSVTemplateParseCVSContentAsSimpleArrayWithHeader($text, $sep = ';')
+{
+    $csv = CSVTemplateParseCVSContent($text."\n", TRUE, $sep);
+    if (count($csv) === 0){
+        $csv = CSVTemplateParseCVSContent($text."\n", FALSE, $sep);
+        $data[] = array_shift($csv);
+    }
+    else {
+       $data[] = array_keys($csv[0]);
+    }
+    foreach ($csv as $d) {
+        $a = array();
+        foreach ($d as $v) {
+            $a[] = $v;
+        }
+        $data[] = $a;
+    }
+    return $data;
+}
+
 function CSVTemplateParseCVSContent($content, $header=TRUE, $separator=";")
 {
     $headerA = array();
