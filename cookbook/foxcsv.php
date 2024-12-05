@@ -410,31 +410,44 @@ function fxc_Query( &$data, $header, $opt ) {
     }
     // check each data item in turn
     if (!empty($query))
-    $matches = array();
-    foreach ($data as $i=>$item) {
-        foreach ($include as $k => $pat) {
-            if ($pat=="") continue;
-            if (isset($opt['case']) && $opt['case']==0)
-                $pat = "(?i)".$pat;
-            if (preg_match("($pat)", $item[$k])) {
-                $matches[$i] = $data[$i];
-                continue 2; 
+    {
+        $include = array_filter($include, function($v) {
+            return $v !== null && $v !== "" && $v !== [];
+        });
+        if (count($include) > 0)
+        {
+            $matches = [];
+            foreach($data as $i=>$item) {
+                foreach($include as $k => $pat) {
+                    if ($pat=="") continue;
+                    if (isset($opt['case']) && $opt['case']==0)
+                        $pat = "(?i)".$pat;
+                    if (preg_match("($pat)", $item[$k])) {
+                        $matches[$i] = $data[$i];
+                        continue 2; 
+                    }
+                }
+            } 
+        }
+        else {
+            $matches = $data;
+        }
+        if ($opt['regex']==0) //for non-regex queries we may have exclude patterns
+        {
+            foreach($matches as $i=>$item) {
+                foreach($exclude as $k => $pat) {
+                    if ($pat=="") continue;
+                    if (isset($opt['case']) && $opt['case']==0)
+                        { $pat = "(?i)".$pat; }
+                    if (preg_match("($pat)",$item[$k])) {
+                        unset($matches[$i]);
+                        continue 2;
+                    }
+                } 
             }
         }
-    } 
-    if ($opt['regex']==0) //for non-regex queries we may have exclude patterns
-        foreach ($matches as $i=>$item) {
-            foreach ($exclude as $k => $pat) {
-                if ($pat=="") continue;
-                if (isset($opt['case']) && $opt['case']==0)
-                    { $pat = "(?i)".$pat; }
-                if (preg_match("($pat)",$item[$k])) {
-                    unset($matches[$i]);
-                    continue 2;
-                }
-        } 
-    } 
-   $data = $matches;
+        $data = $matches;
+    }
 } //}}}
 
 // sort a multi-column data array by up to four header fields
