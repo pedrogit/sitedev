@@ -103,7 +103,15 @@ function fxc_Display ($m) {
     list($sep, $opt) = fxc_Set_Sep($text, $opt);
     
     // parse text into data 2-dimensional array, items per row
-    $data = fxc_Parse_CSV($text, $sep);
+    // Pierre Racine Multiline
+    // If set in the config, use a different CSV parser (able to parse double quoted values containing \n properly)
+    // $FoxCSVConfig['csvparser'] = 'CSVTemplateParseCVSContentAsSimpleArrayWithHeader';
+    if (isset($FoxCSVConfig['csvparser']) && function_exists($FoxCSVConfig['csvparser'])){
+        $data = $FoxCSVConfig['csvparser']($text, $sep);
+    }
+    else
+        $data = fxc_Parse_CSV($text, $sep);
+    
     if (empty($data)) return "'''Error:''' Parsing csv data failed!";
  #show ($data,'data');
 
@@ -252,7 +260,7 @@ function fxc_Set_Sep( $text, $opt ) {
             $sep = $opt['sep'] = $m[2];
             if ($m[1]=='"') $opt['quotes'] = 1;  //assuming data elements are enclosed in dbl-quotes
         }
-        elseif (preg_match('/^(")?[a-zA-Z][-\w]*\1?(.)/', $text, $m)) { //guessing sep is first non-alpha-numeric char after alphanum start
+        elseif (preg_match('/^(")?(?:{\$\$)?[a-zA-Z][-\w]*}?\1?(.)/', $text, $m)) { //guessing sep is first non-alpha-numeric char after alphanum start
             $sep = $opt['sep'] = $m[2]; 
             if ($m[1]=='"') $opt['quotes'] = 1;  //assuming data elements are enclosed in dbl-quotes
         }
@@ -537,12 +545,18 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
             if ($opt['new']=='top') $opt['saveasnew'] = 'top';
             else $opt['saveasnew'] = 'bottom';
         }
-        $template = $tmpl."(:cell:)(:csv-delete target={\$\$SOURCE} idx={\$\$IDX} sep=\"".$opt['sep']."\":)".
-                          "(:csv-edit {\$\$SOURCE} idx={\$\$IDX} sep={$opt['sep']} ". 
-                          (isset($opt['env']) ? " env={$opt['env']} " : '').
-                          (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
-                          (isset($opt['saveasnew']) ? " saveasnew={$opt['saveasnew']} " : '').
-                          ":)\n";
+    
+        // Pierre Racine Multiline
+        // Pass-on the multiline parameter when it is set in the (:csv markup
+        // So that double quotes are automatically added only to the multiline fields
+        $template = $tmpl."(:cell:)".
+                    "(:csv-delete target={\$\$SOURCE} idx={\$\$IDX} sep=\"".$opt['sep']."\"".
+                    (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').":)".
+                    "(:csv-edit {\$\$SOURCE} idx={\$\$IDX} sep={$opt['sep']} ". 
+                    (isset($opt['env']) ? " env={$opt['env']} " : '').
+                    (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
+                    (isset($opt['saveasnew']) ? " saveasnew={$opt['saveasnew']} " : '').
+                    ":)\n";
     }
     else $template = $tmpl."\n";
     $head = $foot = $body = '';
@@ -684,7 +698,10 @@ function fxc_Write_To_File ( $pagename, $filename, $text ) {
 // make single text line into a valid csv record (row)
 function fxc_Make_CSV_Row($row, $sep, $env='') {
     #show($row,'row');
-    $items = str_getcsv($row, $sep, "\"", "`"); 
+    $items = $row;
+    if (!is_array($items)) {
+        $items = str_getcsv($items, $sep, "\"", "`");
+    }
     foreach ($items as &$str) {
        $str = fxc_Make_CSV_Item($str, $sep, $env);
     }
@@ -698,7 +715,9 @@ function fxc_Make_CSV_Item( $str, $sep, $env='' ) {
         $str = preg_replace('/\r\n?/', "\n", $str); // replace any CR or CRNR with NL
         $str = preg_replace('/(?<!`)"/','`"', $str); // escape quotes with ` accent char
    # show($str,'str 2');
-        $str = str_replace("\n", "\\", $str); // replace line breaks with \
+        // Pierre Racine Multiline
+        // We don't need this anymore. This is producing CSV data incompatible with other softwares (Excell, Google Sheet)
+        //$str = str_replace("\n", "\\", $str); // replace line breaks with \
         $str = trim($str); // remove any white spaces at start and end
         if (preg_match('/\n/',$str) OR strstr($str, $sep) OR $env==1) { 
             if (!is_numeric($str))
@@ -762,14 +781,21 @@ function fxc_Array_Combine_Special( $a, $b, $pad = TRUE ) {
     return array_combine($a, $b);
 } //}}}
 
-function fxc_Get_Row_Key($rows, $idx, $sep) {
+function fxc_Get_Row_Key($rows, $idx, $sep, $modeCSV=false ) {
+    $idxk = 0;
+    if ($modeCSV){
+       $idxk = array_search('IDX', $rows[0]);
+    }
     $idnr = array();
     $cnt = count($rows);
-    for($k=1; $k < $cnt; $k++) {
-        $r = explode($sep,$rows[$k]);
-        if (is_numeric($r[0])) {
-            if ($r[0]==$idx) return $k; //return row key
-            $idnr[] = $r[0];
+    foreach ($rows as $k => $row) {
+        if (!$modeCSV){
+            $row = explode($sep, $row);
+        }
+
+        if (is_numeric($row[$idxk])) {
+            if ($row[$idxk]==$idx) return $k; //return row key
+            $idnr[] = $row[$idxk];
         }
     }
     $max = (!empty($idnr)) ? (int)max($idnr) : 0;
@@ -850,10 +876,8 @@ function fxc_Action_Form_Fmt( $m ) {
         $TargetPageUrl = PUE(($EnablePathInfo) ? "$ScriptUrl/$pagename" : "$ScriptUrl?n=$pagename");
         $tpn = $pagename;
     } else { //page /section update
-        $tt = explode("#",$target);
-        if (empty($tt[0])) $tpn = $pagename;
-        else $tpn = MakePageName($pagename, $tt[0]);
-        $target = (isset($tt[1])) ? $tpn."#".$tt[1] : $tpn;
+        $target = FoxMakeFullTarget($pagename, $target);
+        $tpn = explode("#",$target)[0];
         $TargetPageUrl = PUE(($EnablePathInfo) ? "$ScriptUrl/$target" : "$ScriptUrl?n=$tpn");
     }
     // javascript delete message dialogue
@@ -865,6 +889,7 @@ function fxc_Action_Form_Fmt( $m ) {
                 "<input type='hidden' name='action' value='foxpost' />".
                 "<input type='hidden' name='foxaction' value='csv' />".
                 "<input type='hidden' name='foxtemplate' value='csv' />".
+                (isset($opt['multiline'])? "<input type='hidden' name='multiline' value='{$opt['multiline']}' />" : "").
             "<!--input type='hidden' name='foxfilter' value='csvaction' /-->".
                 "<input type='hidden' name='csvact' value='$act' />".
                 "<input type='hidden' name='csum' value='$csum' />".
@@ -945,19 +970,58 @@ function FoxCSV_Update($pagename, $text, $newline, $fx) {
     $env = $fx['csvenv'] ?? '';
     if (isset($fx['csvfile']) && $fx['csvfile']==1) 
         $text = fxc_Get_Text($pagename, $fx['target']);
-    $text = trim($text,"\n\r");
+    // Pierre Racine Typo
+    $text = trim($text,"\r\n");
     list($sep, $fx) = fxc_Set_Sep($text, $fx);
-        if ($sep=='\t') $sep = "\t";
-    $rows = explode("\n", $text);
+    if ($sep=='\t') $sep = "\t";
+    $fx['csvsep'] = $sep;
+    
+    // Pierre Racine Empty CSV
+    // Get the template from parameters in case the CSV is empty and we need to build a default header
+    if (isset($fx['foxtemplate']) && $fx['foxtemplate'] !== 'csv'){
+        $template = trim($fx['foxtemplate']);
+    }
+    elseif (isset($fx['template'])){
+        $template = RetrieveAuthSection ($pagename, $fx['template'], $list=NULL, $auth='read');
+        $template = trim($template);
+    }
+    // Pierre Racine Multiline
+    // If set in the config, use a different CSV parser (able to parse double quoted values containing \n properly)
+    // and generate the rows to be written in the page using the template (so multiline values stay double quoted)
+    $rows = array();
+    if (isset($FoxCSVConfig['csvparser']) && function_exists($FoxCSVConfig['csvparser'])){
+        $data = $FoxCSVConfig['csvparser']($text, $sep);
+        if (!empty($data)){
+            array_walk($data, function(&$a) use ($data) {
+                $a = fxc_Array_Combine_Special($data[0], $a);
+            });
+            $header = array_shift($data);
+            if (empty($template)) {
+                // ##doublequote
+                $template = fxc_Auto_Template($header, $sep);
+            }
+            $rows[] = implode($sep, $header);
+            foreach ($data as $row){
+                $rows[] = FoxVarReplace($pagename, array_merge($fx, $row), null, $template);
+            }
+        }
+    }
+    else
+        $rows = explode("\n", $text);
     $rows = fxc_Remove_Empty_Rows($rows, $sep);
     $cnt = count($rows);
     if ($FoxDebug >1) show($rows,'rows old'); #show($idx,'idx');
-    if (empty($rows)) return $text;
+    if (empty($rows) && ! empty($template)) {
+        // Pierre Racine
+        // Try to build a header from the template
+        $rows[] = preg_replace('/\{\$\$([^{}]+?)\}/', "$1", $template);
+    }
     // make idx for new item for custom form submissions
     if ($fx['csvact']=='addnew') {
         if ($idx=='new') $idx = $cnt; //add to bottom
         if ($idx=='newtop') $idx = 0; //add to top
     }
+    if (empty($rows)) return $text;
     // 'Save as New' post (submit post2 button)
     if (isset($fx['post2'])) { 
         if (!isset($fx['saveasnew'])) $fx['saveasnew'] = $FoxCSVConfig['saveasnew'];
@@ -1121,6 +1185,19 @@ function FoxCSV_Update($pagename, $text, $newline, $fx) {
     return $text;
 } //}}}
 
+// Pierre Racine Multiline
+// automatically build template from header, sep and multi (to surround field with double quotes)
+function fxc_Auto_Template($header, $sep = ",") {
+    $t = "";
+    foreach ($header as $n){
+        $t .= "{\$\$".$n."}$sep";
+    }
+    // remove the last separator
+    if (strlen($t) > 0)
+        $t = substr($t, 0, -1);
+    return $t;
+}
+
 ////----- FoxCSVEdit 2024-04-06 -----//////
 //FoxEdit Globals
 $CSVEditForm = $EditSource = $EditTarget = $EditBase = $EditSection = $EditItem = ''; //init; will be set by form
@@ -1177,11 +1254,16 @@ function fxc_Edit_Form($pagename) {
     if (empty($text)) FoxAbort($pagename,"$[Error: cannot find csv data] $fulltarget");
     // get rows array from text
     $text = trim($text,"\r\n");
-    $rows = explode("\n", $text); //get rows
     // get csv separator/delimiter 
     list($sep, $args) = fxc_Set_Sep($text, $args);
     if ($idx=='header') $idx = 0;
-    $data = fxc_Parse_CSV($text, $sep);
+    // Pierre Racine Multiline
+    // If set in the config, use a different CSV parser (able to parse double quoted values containing \n properly)
+    if (isset($FoxCSVConfig['csvparser']) && function_exists($FoxCSVConfig['csvparser']))
+       $data = $FoxCSVConfig['csvparser']($text, $sep);
+    else
+       $data = fxc_Parse_CSV( $text, $sep );
+
     $rowcnt = count($data);
     $header = $data[0];
     $multi = (isset($args['multiline'])) ? fxc_Fields($args['multiline'], $header) : array();
@@ -1189,7 +1271,8 @@ function fxc_Edit_Form($pagename) {
         if (preg_match('/^[\d]|[^\-a-zA-Z0-9_]/', $v, $m)) 
             FoxAbort($pagename, "'''Error: invalid header name(s)!''' (No  digits at beginning, no spaces, no punctuations)");
     }
-    $key = ($header[0]=='IDX') ? fxc_Get_Row_Key($rows, $idx, $sep) : $idx;
+    $key = ($header[0]=='IDX') ? fxc_Get_Row_Key($data, $idx, $sep, true) : $idx;
+
     $idxtitle = " #$idx";
     $idx0 = $idx; 
     $act = 'replace';
@@ -1240,8 +1323,7 @@ function fxc_Edit_Form($pagename) {
     if (empty($eform)) {
         $eform = "(:fox eform foxaction=csv csvact=$act csvidx=$key target=$fulltarget redirect=$base:)";
         // set template
-        $tv= ''; foreach ($header as $n) 
-        $tv .= "{\$\$".$n."}$sep"; //no space after seperator!
+        $tv= fxc_Auto_Template($header, $sep);
         $eform .= "(:foxtemplate \"".rtrim($tv,$sep)."\":)"; //trim trailing sep! trailing sep stays from text row!
         $eform .= "(:input defaults request=1:)(:input hidden csum '$[Updated CSV Table]':)(:input hidden rowcnt $rowcnt:)"
                   ."(:input hidden csvsep $sep:)(:input hidden csvfile $csvfile:)".

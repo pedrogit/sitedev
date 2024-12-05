@@ -1240,17 +1240,30 @@ function FoxVarRepRecursive(&$v, $k, $d) {
         FoxAbort($d['fx']['foxpage'], "$[Error: max iterations exceeded while replacing variables!]");
 } //}}}
 
+function FoxQuotedChars($fx, $text) {
+    $sep =  empty($fx['sep']) ? (empty($fx['csvsep']) ? "" : $fx['csvsep']) : $fx['sep'];
+    if (empty($sep) ?? function_exists('fxc_Set_Sep'))
+        list($sep, $fx) = fxc_Set_Sep($text, $fx);
+    if (empty($sep))
+        $sep = $GLOBALS['FoxCSVConfig']['sep'] ?? ";";
+    return array("\r", "\n", PHP_EOL, '"', $sep);
+}
+
 ## replaces variables by checking pattern and if success returns value
 function FoxVarReplace($pn, $fx, $tg, $str) {
     global $Now, $FoxDebug; if ($FoxDebug>6) echo "<pre><b>VREP=</b><br/>".$str."</pre>"; //DEBUG//
     # {$$:ptv}
     $str = preg_replace('/\\$\\$:/', '$$ptv_', $str);
+    $sc = array();
+    if (isset($fx['foxaction']) && $fx['foxaction'] == "csv"){
+        $sc = FoxQuotedChars($fx, $str);
+    }
     # {$$var}
-    $str = preg_replace_callback('/\\{\\$\\$([a-z][-_\\w]*)\\}/i', 
-                    function($m) use($fx,$tg) { return FoxValue($fx,$tg,$m[0],$m[1]);}, $str);
+    $str = preg_replace_callback('/(\")?(\\{\\$\\$([a-z][-_\\w]*)\\})(\")?/i', 
+                    function($m) use($fx,$tg,$sc) {return ($m[1] ?? "").FoxValue($fx,$tg,$m[2],$m[3],null,$sc,($m[1] ?? null),($m[4] ?? null)).($m[4] ?? "");}, $str);
     # {$$var[]}
     $str = preg_replace_callback('/\\{\\$\\$([a-z][-_\\w]*)\\[\\s*([a-z0-9]+)\\s*\\]\\}/i', 
-                    function($m) use($fx,$tg) { return FoxValue($fx,$tg,$m[0],$m[1],$m[2]);}, $str);
+                    function($m) use($fx,$tg, $sc) { return FoxValue($fx,$tg,$m[0],$m[1],$m[2], $sc);}, $str);
     # {=$pagevar}
     $str = preg_replace_callback('/\\{(\\*|!?[-\\w.\\/\\x80-\\xff]*)\\=(\\$:?\\w+)\\}/', 
                     function($m) use($pn) { return PVSE(PageVar($pn, $m[2], $m[1]));}, $str); 
@@ -1272,7 +1285,7 @@ function FoxVarReplace($pn, $fx, $tg, $str) {
 # (index of targetpage process) if it exists, or else 0.
 # In the InputVarReplace process if the field is an array, a comma-separated list of
 # the array elements will be returned (not just the first array element)
-function FoxValue($fx, $tg, $fullvar, $var, $idx=NULL) {
+function FoxValue($fx, $tg, $fullvar, $var, $idx=NULL, $schars=NULL, $quote1=NULL, $quote2=NULL) {
     global $FoxDebug; if ($FoxDebug>7) { if (is_null($idx)) echo "<pre>VALUE(".$var.")="; else echo "<pre>VALUE(".$var."[".$index."])=";}//DEBUG//
     $fti = 'none';
     if (isset($tg['t_count']) && $tg['t_count']>1) $fti =  $tg['t_idx'];
@@ -1292,6 +1305,15 @@ function FoxValue($fx, $tg, $fullvar, $var, $idx=NULL) {
             else if (is_null($idx)) echo "<pre>VALUE(".$var."[".$fti."])=".$val."</pre>";
             else echo "<pre>VALUE(".$var."[".$idx."])=".$val."</pre>";
         } //DEBUG
+        if (isset($fx['foxaction']) && $fx['foxaction'] == "csv"){
+            if ($quote1 !== '"' && $quote2 !== '"'){
+                $fnd = 0;
+                str_replace($schars, '', $val, $fnd);
+                if ($fnd > 0){
+                    $val = '"'.str_replace('"', '""', $val).'"';
+                }
+            }
+        }
         return $val;
     }
     //var is no key name: if action 'add' return empty, otherwise full var string
