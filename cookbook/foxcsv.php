@@ -76,6 +76,15 @@ function fxc_Display ($m) {
         $args['header'] = 0; // by default no header row if we use template, not auto template
     $opt = array_merge($FoxCSVConfig, $args);
  #show($opt,'opt');
+    // Pierre Racine Preview
+    // Make (:csv:) markup parameters available for the template
+    // so we can use them to take decisions and use extra parameters in the template
+    $simpleArgs = [];
+    foreach ($args as $key => $value) {
+        if (is_array($value) === FALSE) {
+            $simpleArgs['FOXCSV_'.$key] = $value;
+        }
+    }
 
     $source = $opt['source'] ?? $opt['src'] ?? array_shift($opt['']);
     if (empty($source)) return;
@@ -122,10 +131,12 @@ function fxc_Display ($m) {
     foreach ($data as $k=>$item) {
         $add1 = array('SOURCE'=>$source);
         if (array_key_exists('IDX',$item)) {
-            $data[$k] = $add1 + $item;
+            // Pierre Racine Preview
+            // Add markup parameters to the data to be used by the template
+            $data[$k] = $add1 + $item + $simpleArgs;
         } else { //no IDX, add it!
             $add2 = array('IDX'=>$k+1);
-            $data[$k] = $add2 + $add1 + $item;
+            $data[$k] = $add2 + $add1 + $item + $simpleArgs;
         }
    }
 
@@ -142,14 +153,19 @@ function fxc_Display ($m) {
     foreach ($data as $k=>$item) {
          $new = array('CNT'=>$k+1);
          $data[$k] = $new + $item;
+         // Pierre Racine Preview
+         // Add the total count of records so it can be used by the template
+         $new = array('FOXCSV_TOTALCNT'=>count($data));
+         $data[$k] = $data[$k] + $new;
     }
 
     // extract subset of data rows according to 'count=' parameter, using function on scripts/pagelist.php
      if (isset($opt['count']))
         FPLTemplateSliceList($pagename, $data, $opt);
     $data = array_values($data); //re-index
-    $rowcnt = count($data);
-    $header = array('SOURCE'=>$source) + $header; //source field needed for possible var replacement, does not display as column
+    // Pierre Racine Preview
+    // Add TOTALCNT and markup parameters in the header record also
+    $header = array('SOURCE'=>$source) + array('FOXCSV_TOTALCNT'=>count($data)) + $simpleArgs + $header; //source field needed for possible var replacement, does not display as column
 
  #show($header,'header'); show($data,'data final');
 
@@ -165,40 +181,65 @@ function fxc_Display ($m) {
     else { // use an external template. The header row may be supplied via markup above (:foxcsv ...:) markup, or not at all
         $auto = 0;
         $template = RetrieveAuthSection ($pagename, $template, $list=NULL, $auth='read');
-        $tp = preg_split('/\(:template\s(\w+):\)/si', $template,-1,PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE); 
-        if (count($tp)==1) $tpeach = $tp[0];
-        else {
-            for($i=0; $i<count($tp); $i++) {
-                if ($tp[$i]=='first') { $tpfirst = $tp[$i+1]; continue; }
-                if ($tp[$i]=='each') { $tpeach = $tp[$i+1]; continue; }
-                if ($tp[$i]=='last') { $tplast = $tp[$i+1]; continue; }
-            }
-        }  
-        if ($opt['header']==1)  $tpfirst .= $tpeach; //to include header row as a first data row
-            if (isset($tpfirst)) { 
-                $str = FoxVarReplace($pagename, $header, '', $tpfirst);
-                $head .= preg_replace('/\{\$\$\(?(.*?)\)?\}/'," ",$str);
-            }
-            if (isset($tpeach)) {
-                for($k=0; $k<$rowcnt; $k++) {
-                    $str = FoxVarReplace($pagename, $data[$k], '', $tpeach);
-                    $body .= preg_replace('/\{\$\$\(?(.*?)\)?\}/'," ",$str); //non-rendered template vars get removed
-                }        
-            }  
-            // foot: replacing any vars from (:template last:): for column sums use [{$$SUM_<fieldname>}]         
-            if (isset($tplast)) {
-                $sums = array();
-                foreach ($header as $k=>$v) { 
-                    $sums['SUM_'.$k] = array_sum(array_column($data,$v));
-                }
-                $str = FoxVarReplace($pagename, $sums, '', $tplast);
-                $foot .= preg_replace('/\{\$\$\(?(.*?)\)?\}/'," ",$str); 
-            }
-        $out = $head.$body.$foot;
+        // Pierre Racine Preview
+        // Made a function with the template logic so it can be used by Fox when generating a preview with CSV data
+        $out = fxc_Fill_Template($pagename, $data, $header, $template, $opt);
     }
     // return output as wiki markup, Markup to HTML will be done later by PmWiki
     return $out;
 } //}}}
+
+function fxc_Fill_Template($pagename, $data, $header, $template, $opt) {
+    $tp = preg_split('/\(:template\s(\w+):\)/si', $template,-1,PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE); 
+    if (count($tp)==1) $tpeach = $tp[0];
+    else {
+        for($i=0; $i<count($tp); $i++) {
+            if ($tp[$i]=='first') { $tpfirst = $tp[$i+1]; continue; }
+            if ($tp[$i]=='each') { $tpeach = $tp[$i+1]; continue; }
+            if ($tp[$i]=='last') { $tplast = $tp[$i+1]; continue; }
+        }
+    }  
+    if (array_key_exists('header', $opt) && $opt['header'] == 1)  $tpfirst .= $tpeach; //to include header row as a first data row
+    $head = $body = $foot = ''; 
+    if (isset($tpfirst)) { 
+        $str = FoxVarReplace($pagename, $header, '', $tpfirst);
+        $head = preg_replace('/\{\$\$\(?(.*?)\)?\}/'," ",$str);
+    }
+    if (isset($tpeach)) {
+        $rowcnt = count($data);
+        $body = '';
+        for($k=0; $k<$rowcnt; $k++) {
+            // Pierre Racine Multiline
+            // Add a (:csv:) parameter to replace \n with something else (e.g. \\ for simple tables)
+            if (isset($opt['eol'])) {
+                // replace \n with a true \n in the provided EOL
+                $eol = preg_replace("/\\\\n/", PHP_EOL, $opt['eol']);
+                // double any \\
+                $eol = preg_replace("/\\\\/", "\\\\\\\\", $eol);
+                array_walk($data[$k], function (&$val, $key, $eol){
+                    if ($key !== "FOXCSV_eol")
+                      $val = preg_replace("/(?<!\\\\)\r\n|(?<!\\\\)\n/m", $eol, $val);
+                }, $eol);
+            }
+            $str = FoxVarReplace($pagename, $data[$k], '', $tpeach);
+            $body .= preg_replace('/\{\$\$\(?(.*?)\)?\}/'," ",$str); //non-rendered template vars get removed
+        }        
+    }  
+    // foot: replacing any vars from (:template last:): for column sums use [{$$SUM_<fieldname>}]         
+    if (isset($tplast)) {
+        $sums = array();
+        foreach($header as $k=>$v) {
+            // Pierre Racine
+            // Bug for chk_ variable
+            if (! is_array($v))
+               $sums['SUM_'.$k] = array_sum(array_column($data,$v));
+        }
+        $str = FoxVarReplace($pagename, $sums, '', $tplast);
+        $foot = preg_replace('/\{\$\$\(?(.*?)\)?\}/'," ",$str); 
+    }
+
+    return $head.$body.$foot;
+}
 
 // determine and set separator/delimiter 
 function fxc_Set_Sep( $text, $opt ) {
@@ -453,6 +494,13 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
         $header = fxc_Fields($opt['show'], $header);
     //remove fields not for display
     unset($header['SOURCE']);
+    // Pierre Racine
+    // Unset all parameter passed to the template so they are not added to the auto table
+    foreach ($header as $key => $value) {
+        if (strpos($key, "FOXCSV_") !== false) {
+            unset($header[$key]);
+        }
+    }
     if ($opt['hideidx']==1) unset($header['IDX']);
     // set cell alignment
     $ralf = $calf = array();
@@ -745,7 +793,9 @@ function fxc_Action_Form_Fmt( $m ) {
     $target = $opt['target'] ?? array_shift($opt['']) ?? $pagename;
   #show($opt,'opt');
     if ($target=='') return;
-    if ((empty($opt['idx']) || $opt['idx']=='IDX') && ($act=='del' || $act=='delete')) return;
+    // Pierre Racine Preview
+    // When IDX is empty, display a message instead of doing nothing
+    //if ((empty($opt['idx']) || $opt['idx']=='IDX') && ($act=='del' || $act=='delete')) return;
     $idx =  $opt['idx'] ?? '';
     $csum = '$[Table updated]';
     $imageurl = '';
@@ -1070,7 +1120,11 @@ function FoxCSV_Update($pagename, $text, $newline, $fx) {
 
 ////----- FoxCSVEdit 2024-04-06 -----//////
 //FoxEdit Globals
-$EditSource = $EditTarget = $EditBase = $EditSection = $EditItem = ''; //init; will be set by form
+$CSVEditForm = $EditSource = $EditTarget = $EditBase = $EditSection = $EditItem = ''; //init; will be set by form
+
+// Pierre Racine Preview
+// Make the name of the form available to users so it can be added to the (:fox :) markup to be used when editing a preview
+$FmtPV['$CSVEditForm'] = '$GLOBALS["CSVEditForm"]';
 $FmtPV['$EditSource'] = '$GLOBALS["EditSource"]';
 $FmtPV['$EditTarget'] = '$GLOBALS["EditTarget"]';
 $FmtPV['$EditSection'] ='$GLOBALS["EditSection"]';
@@ -1080,38 +1134,44 @@ $FmtPV['$EditBase'] ='$GLOBALS["EditBase"]';
 // make csv edit form by setting page vars and loading edit form
 $HandleActions['foxcsvedit'] = 'fxc_Edit_Form';
 function fxc_Edit_Form($pagename) {
-    global $EditSource, $EditTarget, $EditBase, $EditSection, $EditItem, $InputValues;
+    global $CSVEditForm, $EditSource, $EditTarget, $EditBase, $EditSection, $EditItem, $InputValues, $FoxCSVConfig;
     $args = RequestArgs($_POST); // fetch POST arguments
-    if (empty($args['source'])) FoxAbort($pagename,"%red%'''Error:''' no source given");
+    // Pierre Racine Preview
+    // When editing from preview, only $args['target'] is set, not $args['source']
+    if (empty($args['source']) && empty($args['target'])) FoxAbort($pagename,"%red%'''Error:''' no source given");
     //DEBUG    show($args,'edit args');
     // initialising variables
     $section = $args['section'] ?? ''; 
     // check for file edit or page (section) edit
-    if (preg_match('/\.(csv|txt)$/i', $args['source'], $m)) {
-        $source = $args['source'];
+    // Pierre Racine Preview
+    // Set the source from the (:csv-edit:) markup source parameter or from the Fox target
+    $source = $args['source'] ?? $args['target'];
+    unset($args['target']);
+    if (preg_match('/\.(csv|txt)$/i', $source, $m)) {
         $EditSource = $target = $source;
         $csvfile = 1; // file edit flag, will be passed on at form submit to Fox processing
     } else {
         $csvfile = 0;
-        $ss = explode('#', $args['source']);
-        $source = ($ss[0]=='') ? $pagename : $ss[0];
-        if (isset($ss[1])) {
-            $section = "#".$ss[1];
-        }
-        # else $section = $source;
+        // Pierre Racine Preview
+        // $source is now defined above
+        $source = FoxMakeFullTarget($pagename, $source);
+        $parts = explode('#', $source);
+        $section = isset($parts[1]) ? '#'.$parts[1] : "";
     }
     $EditSource = $source;
     $EditSection = $section;
-    $EditItem = $idx = $args['idx'] ?? '';
-    if (empty($idx)) FoxAbort($pagename,"%red%'''Error:''' no idx given");
+    // Pierre Racine Preview
+    // Get idx from idx or csvidx
+    $EditItem = $idx = $args['idx'] ?? $args['csvidx'] ?? '';
+    if (empty($idx)) FoxAbort($pagename,isset($args['preview']) ? "" : "%red%'''Error:''' no idx provided");
     $csv = (isset($args['csv'])) ? explode(",", $args['csv']) : '';
     $target = $args['target'] ?? $source;
     $EditTarget = MakePagename($pagename, $target); 
     $EditBase = $base = $args['base'] ?? $EditTarget;
-    $fulltarget = (isset($section) && strstr($section,'#')) ? $target.$section : $target;
+    $fulltarget = (isset($section) && strstr($section,'#') && ! strstr($target,'#')) ? $target.$section : $target;
     // open target page or file, get text section, set InputValues for 'text' and 'mark' controls
     $text = fxc_Get_Text($pagename, $fulltarget);
-    if (empty($text)) FoxAbort($pagename,"$[Error: cannot find edit template] $fulltarget");
+    if (empty($text)) FoxAbort($pagename,"$[Error: cannot find csv data] $fulltarget");
     // get rows array from text
     $text = trim($text,"\n\r");
     $rows = explode("\n", $text); //get rows
@@ -1160,6 +1220,9 @@ function fxc_Edit_Form($pagename) {
     //note: we use hardcoded form as default, if no formpage is set via form= parameter
     if (isset($args['form'])) {
         $formpage = $args['form'];
+        // Pierre Racine Preview
+        // Set the CSVEditForm page variable so it can be used in the (:fox markup to indicate which form to use when editing preview
+        $CSVEditForm = $formpage;
     }
     //retrieve edit form from page or page section
     if (!empty($formpage)) {
@@ -1234,7 +1297,9 @@ function fxc_Edit_Button ($m) {
             else $title = "$[Add new item]";
         }
         elseif ($idx=='header') $title = "$[Edit header]";
-        else $title = "$[Edit item] $idx";
+        // Pierre Racine Preview
+        // Display a proper error message when no IDX is provided (e.g. in the preview)
+        else $title = "$[Edit row]".(is_numeric($idx) ? "" : " (no IDX provided)");
     }
     else if (!empty($source)) $title = "$[Edit] ".$source;
     $title = $args['title'] ?? $title ?? '';

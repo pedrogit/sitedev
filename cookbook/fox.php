@@ -229,7 +229,7 @@ function FoxCheckMarkup($m) {
 // (:foxmessage [form] [name]:) (:foxdisplay [form] [name]:)
 Markup('foxdisplaymessage','directives','/\\(:fox-?(message|display|preview)s?\\s*(.*?)\\s*:\\)/',    "FoxDisplayMarkup");
 function FoxDisplayMarkup($m) {
-    global $FoxMsgFmt, $FoxDisplayFmt;
+    global $FoxMsgFmt, $FoxDisplayFmt, $FoxDisplayData, $FoxPreviewDisplayFmt;
     extract($GLOBALS['MarkupToHTML']);
     if (!$FoxMsgFmt && !$FoxDisplayFmt) return '';
     $opt = ParseArgs($m[2]);
@@ -251,12 +251,17 @@ function FoxDisplayMarkup($m) {
             else $msg = implode("\\\\\n", $FoxMsgFmt); //show all messages
         } 
     } 
-    if ($m[1]=='display' || $m[1]=='preview' || @$opt['list']=='display') 
+    if ($m[1]=='display' || @$opt['list']=='display') 
         if (!$form || $form==@$_REQUEST['foxname']) 
             if (!is_array($FoxDisplayFmt))
                 $msg = trim($FoxDisplayFmt);
             else if ($form==@$_REQUEST['foxname'] && isset($name))
                 $msg = @$FoxDisplayFmt[$name];
+    // Pierre Racine Preview
+    // Uses FoxCSV template engine if the preview template is divided with (:template first:), (:template each:) or (:template last:)
+    if ($m[1]=='preview' && preg_match('/\(:template\s(\w+):\)/si', $FoxPreviewDisplayFmt) === 1 && function_exists('fxc_Fill_Template')) {
+        $msg = fxc_Fill_Template($pagename, array($FoxDisplayData), $FoxDisplayData, $FoxPreviewDisplayFmt, $opt);
+    }
     $out = MarkupToHTML($pagename, $msg); 
     //strip p tags from beginning and end, trim end space
     $out = rtrim(preg_replace("/^<p>(.*?)<\\/p>$/s","$1", $out));
@@ -294,7 +299,7 @@ $HandleActions['foxpost'] = 'FoxHandlePost';
 ## Main function called with action=foxpost
 function FoxHandlePost($pagename, $auth) {
     global $InputValues, $EnableFoxUrlInput, $EnableFoxDefaultMsg, $EnablePostDirectives,
-           $IsPagePosted, $FoxDebug, $FmtV, $FoxMsgFmt;
+           $IsPagePosted, $FoxDebug, $FmtV, $FoxMsgFmt, $EditSource, $EditSection, $EditItem;
     FoxTimer($pagename, 'FoxHandlePost: begin');
 
     //get arguments from POST and GET
@@ -339,8 +344,16 @@ function FoxHandlePost($pagename, $auth) {
         else if (array_key_exists('previewtemplate', $fx)) { $fx['template'] = $fx['previewtemplate']; }
         //for cases not called by a foxedit form
         if (!isset($_SESSION['foxedit'][$pagename])) {
+            // Pierre Racine Preview
+            // Set $fx['foxpreview'] to tell HandleDispatch that FoxCSV should generate the edit form (not Fox)
+            // And do not reset the target to the pagename (and erase the # part)
+            if (isset($fx['foxaction']) && $fx['foxaction'] == 'csv') {
+                $fx['foxpreview'] = 'true';
+            }
+            else {
+                $fx['target'] = $pagename;
+             }
             $fx['foxaction'] = 'display';
-            $fx['target'] = $pagename;
             unset($fx['redir']);
             unset($fx[':target']);
             unset($fx['ptvtarget']);
@@ -655,12 +668,20 @@ function FoxGroupName($pagename, $fx, $name) {
     }
 } //}}}
 
+function FoxMakeFullTarget($pagename, $tg) {
+    $split = explode('#', $tg);
+    if (empty($split[0])) $tpn = $pagename;
+    else $tpn = MakePageName($pagename, $split[0]);
+    $ft = (isset($split[1])) ? $tpn."#".$split[1] : $tpn;
+    return $ft;
+}
+
 ## processing of target pages for all foxactions
 function FoxProcessTargets($pagename, $fx, $to) { 
     global $FoxDebug; if ($FoxDebug) echo "<br/><b> FoxProcessTargets></b> "; //DEBUG//
     global $FoxAuth, $EnableBlocklist, $FoxMsgFmt, $EnableFoxDefaultMsg, $ScriptUrl, $FmtV, 
             $IsPagePosted, $Now, $ChangeSummary, $EditFunctions, $FoxExcludeEditFunctions, 
-            $EnablePost, $FoxDisplayFmt, $InputValues;
+            $EnablePost, $FoxDisplayFmt, $FoxDisplayData, $FoxPreviewDisplayFmt, $InputValues;
     $counter = 0;
     $tcount = count($to);
     if ($tcount==0) FoxAbort($pagename, "$[Error: no target specified!]");
@@ -713,6 +734,7 @@ function FoxProcessTargets($pagename, $fx, $to) {
             //get template, skip for 'ptv'
             if ($act!='ptv') {
                 $template = FoxLoadTemplate($pagename, $fx, $tg);
+                $previewtemplate = $template;
                 if ($FoxDebug>4) echo "<pre><b>TEMPL=</b><br/>".$template."</pre>";//DEBUG//
                 //do var replacements on template, skip for 'copy'
                 if ($template && $act!='copy')
@@ -722,6 +744,14 @@ function FoxProcessTargets($pagename, $fx, $to) {
             //display only, no text save to target. Needs (:foxdisplay...:) as page location for output
             if ($act == 'display') {
                 $FoxDisplayFmt = $template;
+                $FoxPreviewDisplayFmt = $previewtemplate;
+                // Pierre Racine Preview
+                // Set the SOURCE, IDX and CNT variable for the preview
+                $fx['SOURCE'] = FoxMakeFullTarget($pagename, $fx['target']);
+                $fx['IDX'] = $fx['csvidx'] ?? '';
+                $fx['CNT'] = '1';
+                $fx['FOXCSV_PREVIEW'] = 'true';
+                $FoxDisplayData = $fx;
             }
 
             //preview for foxedit
@@ -731,7 +761,7 @@ function FoxProcessTargets($pagename, $fx, $to) {
                     $InputValues['text'] = $template;
                     $FoxDisplayFmt = $template;
                 }
-                if (function_exists(FoxHandleEdit))
+                if (function_exists("FoxHandleEdit"))
                     FoxHandleEdit($pagename);
                 continue 2; //next target page
             }
@@ -1595,7 +1625,9 @@ function FoxFinish($pagename, $fx, $msg) {
     StopWatch('FoxFinish start');
     global $InputValues, $FoxMsgFmt;
     // wipe out input values, so there's no redisplay
-    if (isset($fx['keepinput'])) { //keep values for selected input fields
+    // Pierre Racine Preview
+    // Do not wipe them out if we are previewing so they are put back in the edit form
+    if (!isset($fx['preview']) && isset($fx['keepinput'])) { //keep values for selected input fields
         $keep = explode(',', $fx['keepinput']);
         if ($fx['keepinput']!=1)  {
             foreach ($InputValues as $i => $v) {
@@ -1603,10 +1635,15 @@ function FoxFinish($pagename, $fx, $msg) {
                 unset($GLOBALS['InputValues'][$i]);
             }
         }
-    } else //wipe all
+    }
+    elseif (!isset($fx['preview'])) 
         foreach ($InputValues as $i => $v)
             unset($GLOBALS['InputValues'][$i]);
-    HandleDispatch($pagename,'browse',$msg);
+    // Pierre Racine Preview
+    // If editing FoxCSV records, let FoxCSV generate the edit form
+    $action = 'browse';
+    if (isset($fx['foxpreview'])) $action = 'foxcsvedit';
+    HandleDispatch($pagename,$action,$msg);
     exit;
 } //}}}
 
