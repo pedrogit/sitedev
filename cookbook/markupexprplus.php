@@ -44,7 +44,7 @@ SDVA($MarkupExpr, array(
   'sub' => 'MEP_arith("-", $params)',
   'mul' => 'MEP_arith("*", $params)',
   'div' => 'MEP_arith("/", $params)',
-  'mod' => '0 + ($args[0] % $args[1])',
+  'mod'      => '((isset($args[1]) && intval($args[1]) != "0") ? (0 + (intval($args[0]) % intval($args[1]))) : 0)',
   'rev' => 'strrev($args[0])',
   'urlencode' => 'rawurlencode($args[0])',
   'urldecode' => 'rawurldecode($args[0])',

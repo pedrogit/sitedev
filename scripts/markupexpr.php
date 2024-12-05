@@ -71,7 +71,7 @@ SDVA($MarkupExpr, array(
   'ucwords'  => 'ucwords($args[0])',
   'tolower'  => 'strtolower($args[0])',
   'toupper'  => 'strtoupper($args[0])',
-  'mod'      => '0 + (intval($args[0]) % intval($args[1]))',
+  'mod'      => '(isset($args[1]) || intval($args[1]) == "0") ? (0 + (intval($args[0]) % intval($args[1]))) : 0)',
   'asspaced' => '$GLOBALS["AsSpacedFunction"]($args[0])',
   'pagename' => 'MakePageName($pagename, preg_replace_callback($rpat, "cb_expandkpv", $params))',
 ));
