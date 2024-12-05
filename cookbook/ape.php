@@ -9,12 +9,12 @@
 */
 $RecipeInfo['Ape']['Version'] = '20240605';
 
-SDVA($Ape, array(
+SDVA($Ape, [
   'dir' => "$FarmD/pub/ape",
   'dirurl' => '$FarmPubDirUrl/ape',
   'snippet' => '<script type="text/javascript" src="{dirurl}/{fname}?{mtime}"></script>',
   'scripts' => array('ape-local.js', 'ape.js'),
-));
+]);
 
 SDVA($MarkupFrameBase['posteval'], array('Ape'=>'FmtApe($out);'));
 
