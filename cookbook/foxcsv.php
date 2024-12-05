@@ -328,7 +328,8 @@ function fxc_Parse_CSV( $text, $sep ) {
     # show($row,'row adjusted');
         $data[$i] = $row;
     }
-    $data[0] = fxc_Normalise_Header($data[0]);
+    if (isset($data[0]))
+      $data[0] = fxc_Normalise_Header($data[0]);
  #show($data,'data');
     return $data;
 } //}}}
