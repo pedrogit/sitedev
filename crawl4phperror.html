@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHP Error Crawler</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .log { white-space: pre-wrap; background-color: #f0f0f0; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>PHP Error and Warning Crawler</h1>
+<button onclick="startCrawl()">Start Crawling</button>
+<div id="log" class="log"></div>
+
+<script>
+// Set of already crawled URLs to avoid duplication
+let crawledUrls = new Set();
+let pageCnt = 0;
+
+// Error patterns to look for in responses
+const errorPatterns = [
+  /<b>Warning<\/b>/i,
+  /<b>Notice<\/b>/i,
+  /<b>Error<\/b>/i,
+  /<b>Deprecated<\/b>/i,
+  /PHP Fatal Error/i,
+  /PHP Notice/i,
+  /Undefined variable/i,
+  /Parse error/i
+];
+
+// Function to start crawling from the base URL
+function startCrawl() {
+  const baseUrl = window.location.origin; // Start from the base URL
+  document.getElementById('log').innerText = 'Crawling started...\n';
+  crawl(baseUrl, 0);
+  //crawl("http://localhost/pmwiki.php?n=Membres.StevenGCummingBDFDetailed", 0);
+}
+
+// Function to fetch and recursively crawl pages
+async function crawl(url, level) {
+  if (crawledUrls.has(url)) {
+    return;
+  }
+  crawledUrls.add(url);
+  
+  try {
+    const startTime = new Date();
+    logMessage(" ".repeat(level) + `Checking (level=${level}, pCnt=${++pageCnt}) ` + decodeURI(url.slice(url.search("=") + 1)), false);
+
+    const response = await fetch(url);
+    const text = await response.text();
+    
+    // Log any detected PHP errors or warnings
+    checkForErrors(url, text);
+
+    // Find and crawl new links on the page
+    var links = extractLinks(text);
+    links = links.filter(url => {
+        return !url.includes("action") && 
+               !url.includes("userlang") &&
+               !url.includes("uploads") &&
+               !url.includes("#") &&
+               !url.includes("crawl4phperror") &&
+               !url.includes("Site.Search");
+    });
+
+    logMessage(' (' + (new Date() - startTime)/1000 + ' s.)');
+
+    for (const link of links) {
+      await crawl(link, level + 1); // Recursively crawl each link
+    }
+    if (level == 0) logMessage(`Done...`);
+
+  } catch (error) {
+    logMessage(`Error crawling ${url}: ${error}`);
+  }
+}
+
+// Function to check for PHP errors and warnings
+function checkForErrors(url, text) {
+  for (const pattern of errorPatterns) {
+    if (pattern.test(text)) {
+      logMessage(`\n  PHP error detected at ${url}: ${text.match(pattern)[0]}`, false);
+      break;
+    }
+  }
+}
+
+// Function to extract links from a page's HTML content
+function extractLinks(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const anchors = Array.from(doc.querySelectorAll('a'));
+  
+  return anchors
+    .map(anchor => anchor.href)
+    .filter(href => href.startsWith(window.location.origin)); // Only crawl internal links
+}
+
+// Function to log messages
+function logMessage(message, nl=true) {
+  const logElement = document.getElementById('log');
+  logElement.innerHTML += `${message}`;
+  if (nl) logElement.innerText += `\n`
+}
+
+</script>
+</body>
+</html>
