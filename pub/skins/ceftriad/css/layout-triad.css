@@ -1,0 +1,721 @@
+/* ********** LAYOUT STYLES ********** 	
+  Skeleton lifted from the 3-col content first code, by Paul O'Brien
+  http://www.pmob.co.uk/temp/3colfixedtest_sourcenone.htm
+  Resident Sitepoint CSS Guru Extraordinaire. Thanks Paul!
+  http://www.pmob.co.uk/
+
+  Adjusted for Triad skin
+*/
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+img, .img {
+  max-width: 100%;
+}
+
+/*********************
+       Header
+*********************/
+#header-box {
+  display: flex;
+  position: fixed;
+  top: 0px;
+  width: 100%; /*set to ca. width:778px; for fixed width page */
+  max-height: 68px;
+  z-index: 100;
+  box-shadow: 0px 0px 10px 0px #444444;
+}
+
+#header-search {
+  margin-top: 2px;
+  overflow: auto;
+}
+
+#header-search input.wikisearchbox {
+  width: 100%;
+  min-width: 100px;
+}
+
+* html #header-search {
+  height: 1%;
+}
+
+#header-box-main {
+  position: relative;
+  padding: 4px 5px 5px 5px;
+  flex-grow: 1;
+}
+
+#header-box-left {
+  display: flex;
+  width: 185px;
+  min-width: 185px;
+  z-index: 10;
+}
+
+#left-header-logo {
+  width: 100px;
+}
+
+#logo {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#header-menu {
+  position: absolute;
+  right: 5px;
+  bottom: 3px;
+  display: flex;
+  flex-direction: row-reverse;
+  margin: 0;
+  padding: 0;
+  min-height: 1.5em;
+  width: 100%;
+}
+
+#header-menu .rnav {
+  text-align: right;
+  transition: max-height 1s;
+}
+
+#rightbar .rnav {
+  display: none;
+}
+
+#header-menu .rnav ul {
+  position: absolute;
+  right: 146px;
+  bottom: 0px;
+  margin: 0;
+}
+
+#rightbar .rnav ul {
+  margin: 0;
+  padding-left: 20px;
+}
+#rightbar .rnav ul li {
+  margin-bottom: 2px;
+}
+
+#rightbar .rnav ul li a {
+  position: relative;
+  left: -5px;
+}
+
+#header-menu .rnav, #header-menu .rnav ul {
+  width: calc(100% - 388px);
+}
+
+@media screen and (max-width: 900px) { /* medium screen*/
+  #header-menu .rnav, #header-menu .rnav ul {
+    width: calc(100% - 150px);
+  }
+}
+
+@media screen and (max-width: 700px) { /* small screen*/
+  #header-menu .rnav {
+    position: absolute;
+    align-items: initial;
+    flex-direction: initial;
+    top: 30px;
+    right: 0px;
+    width: 315px;
+    max-height: 0px;
+    overflow-y: hidden;
+    background: #E8F4DD;
+    border: 1px solid #275A14;
+    border-radius: 5px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 20px;
+    box-shadow: -5px 5px 18px 0px #444444;
+  }
+
+  #header-menu .rnav ul {
+    position: initial;
+    bottom: initial;
+    width: initial;
+  }
+}
+
+.togglebox {
+  cursor: pointer;
+  cursor: hand;
+  font-size: .85em;
+  padding: 0;
+}
+
+.main-header-sociallogo {
+  width: 29px;
+}
+
+#toggleright, #social {
+  margin: 0px;
+}
+
+#social {
+  display: flex;
+}
+
+#toggleright {
+  padding: 2px 1px 2px 4px;
+}
+
+#toggleleftbutton {
+  float: left;
+  padding: 13px;
+}
+
+.toggleleftbar {
+  width: 35px;
+  height: 5px;
+  margin: 6px 0;
+}
+
+.togglerightbar {
+  width: 22px;
+  height: 3px;
+  margin: 4px 0;
+}
+
+#togglemenu, #rightbar .rnav {
+  display: none;
+}
+
+#togglemenubutton {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 12px solid white;
+  margin: 8px 0px 5px 0px;
+}
+
+#search-box {
+  display: flex;
+}
+
+#languagebar {
+  margin-top: 3px;
+}
+
+/*********************
+     Body
+*********************/
+#global-wrapper {
+  display: flex;
+  margin-top: 66px;
+}
+
+a:not([href]):not([tabindex]):not([class]):not([name=""]):not([id=""]) {
+  display:block;
+  position: relative;
+  top: -66px;
+}
+
+#main-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+  margin-left: 186px;
+  transition: 0.5s;
+  position: relative;
+}
+
+#two-panel-wrapper {
+  display: flex;
+  position: relative;
+  overflow-x: hidden;
+}
+
+#center-content-wrapper {
+  flex-grow: 1;
+  width: 100%;
+  transition: 0.5s;
+}
+
+/*********************
+     Right panel
+*********************/
+#right-panel  {
+  width: 220px;
+  flex-shrink: 0;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding:0 5px 0 5px;
+  z-index: 10;
+}
+
+#rightbar {
+  width: 220px;
+  padding: 0px;
+  overflow-y: hidden;
+}
+
+/*********************
+     Left panel
+*********************/
+#left-panel {
+  width: 186px;
+  flex-shrink: 0;
+  overflow-x: hidden;
+  transition: 0.5s;
+  position: fixed;
+  height: calc(100% - 40px);
+  z-index: 20;
+  overflow-y: auto;
+  visibility: hidden;
+}
+
+#left-panel:hover, #left-panel:focus {
+  visibility: visible;
+}
+
+#sidebar {
+  width: 180px;
+  padding: 0 3px;
+  transition: 0.5s;
+  visibility: visible;
+}
+
+/*********************
+       Content
+*********************/
+#content {
+  padding: 1em;
+}
+
+#content ul {
+  padding-left: 20px;
+}
+
+#content ol {
+  padding-left: 30px;
+}
+
+/* End IE5-Mac hack */
+#pagegroup {
+  margin: 0;
+  padding: 0.5em 1em 0 1em;
+}
+
+#pagegrouppage {
+  float: right;
+}
+
+#pagetitle {
+  margin: 0.3em 1em 0em;
+  padding: .2em .3em .3em;
+  color: #000000;
+  font: lighter  "Lucida Grande", "Lucida Sans Unicode", verdana, sans-serif;
+  border-top: 3px double #CCCCCC;
+  border-bottom: 3px double #CCCCCC;
+  background: transparent;
+}
+
+#pagetitle h1 {
+  text-align: center;
+  margin: 0;
+  padding: 0 0 0 10px;
+}
+
+#pagegroup a, #pagetitle a {
+  text-decoration: none;
+}
+
+#footnav {
+  padding:7px 5px 15px 0px;
+}
+
+#footer {
+  padding:5px 1em;
+}
+
+.clearer {
+  height: 1px;
+  clear: both;
+  margin-top:-1px;
+}
+
+/*******************************
+pagemenu 
+*******************************/
+.pagemenuwrapper {
+  float: right;
+  max-width: 50%;
+  box-sizing: border-box;
+  margin-left: 8px;
+  margin-bottom: 5px;
+  border: none;
+  overflow: hidden;
+  box-shadow:-3px 3px 10px -2px black;
+  width: 250px;
+  position: relative;
+  z-index: 10;
+}
+
+.pagemenucontent {
+  padding: 15px 5px 20px 5px;
+}
+
+#pagemenu p, .pagemenucontent p {
+  text-align: center;
+  font-size: 120%;
+}
+
+.pagemenucontent p, .pagemenucontent li a {
+  font-weight: bold;
+}
+
+.pagemenucontent li a {
+  font-size: 90%;
+}
+
+.pagemenucontent ul {
+  list-style: none;
+  padding: 0 1em 0 1.5em;
+  margin: 0;
+}
+
+.pagemenucontent ul li {
+  list-style: none;
+  text-indent: -1em;
+}
+
+.pagemenucontent ul li::before {
+  content: "\2022\00A0";
+}
+
+.pagemenucontent ol li a, .pagemenucontent ul li ul li a {
+  font-weight: normal;
+  font-size: 90%;
+}
+
+.pagemenucontent ol li, .pagemenucontent ul li {
+  margin-bottom: 3px;
+}
+
+#pagemenu input
+{
+  float: left;
+  margin: 0px;
+  width: 40px;
+  position: relative;
+  cursor: pointer;
+  opacity: 0; /* hide this */
+  z-index: 2; /* and place it over the hampage */
+  -webkit-touch-callout: none;
+}
+
+#pagemenu span.pagemenuburger
+{
+  padding: 2px;
+  height: 26px;
+  position: relative;
+}
+
+#pagemenu span.pagemenuburgerbar
+{
+  width: 33px;
+  height: 4px;
+  margin: 5px 3px;
+
+  background: #cdcdcd;
+  border-radius: 3px;
+ 
+  z-index: 1;
+ 
+  transform-origin: 0px 0px;
+ 
+  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+              background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+              opacity 0.55s ease;
+}
+
+#pagemenu span.pagemenuburgerbar:nth-child(3)
+{
+  transform-origin: 0% 100%;
+  margin-bottom: 0px;
+}
+
+/*
+ * Transform the slices of the burger into a crossmark
+ */
+#pagemenu input:checked ~ div > span.pagemenuburgerbar
+{
+  opacity: 1;
+  transform: translate(6px, -2px) rotate(45deg);
+  background: #232323;
+}
+
+/*
+ * Hide the middle one
+ */
+#pagemenu input:checked ~ div > span.pagemenuburgerbar:nth-child(2)
+{
+  opacity: 0;
+  transform: rotate(0deg) scale(0.2, 0.2);
+}
+
+/*
+ * The last one should go the other direction
+ */
+#pagemenu input:checked ~ div > span.pagemenuburgerbar:nth-child(3)
+{
+  transform: translate(6px, 2px) rotate(-45deg) ;
+}
+
+#pagemenu input:checked ~ div.pagemenucontent
+{
+  max-height: 2000px;
+  padding-bottom: 20px;
+}
+
+@media screen and (max-width: 360px) { /* very small screen*/
+  .pagemenuwrapper {
+    box-shadow: none;
+    width: 100% !important;
+    max-width: none !important;
+    float: none;
+    margin-left: 0px;
+    border: 1px solid #cccccc;;
+  }
+
+  #pagemenu input {
+    height: 32px;
+  }
+
+  .pagemenuburgerbar {
+    display: block;
+  }
+
+  .pagemenucontent {
+    max-height: 0px;
+    transition: max-height 0.7s ease, padding-bottom 1s ease;
+    padding-top: 5px;
+    padding-bottom: 0px;
+  }
+  
+ .personnalbox {
+    position: relative;
+    top: -30px;
+  }
+  
+  #pagemenu input:checked ~ div > .personnalbox {
+    top: 0px;
+  }
+}
+
+@media screen and (min-width: 361px) { /* big screen*/
+  .pagemenucontent {
+    display: block;
+  }
+
+  #pagemenu input {
+    height: 0px;
+  }
+ 
+  .pagemenuburgerbar {
+    display: none;
+  }
+}
+/***************************************
+       Screen size specific styles
+***************************************/
+@media screen and (max-width: 900px) { /* medium screen*/
+  #header-box-main {
+    background: #275A14;
+  }
+}
+
+@media screen and (max-width: 800px) { /* medium screen*/
+  #right-panel {
+    width: 0px;
+    padding:0px;
+    border-radius: 10px 0 0 0;
+  }
+
+  #center-content-wrapper {
+    margin-right: 0px;
+  }
+}
+
+@media screen and (max-width: 700px) { /* small screen*/
+  #left-panel {
+    width: 0px;
+    padding: 0px;
+    visibility: visible;
+  }
+
+  #main-wrapper {
+    margin-left: 0px;
+  }
+
+  #togglemenu, #rightbar .rnav {
+    display: block;
+  }
+
+  #header-menu .rnav li a {
+    display: block;
+    color: black;
+  }
+
+  #header-menu .rnav ul li:before {
+    content: none;
+  }
+  
+  #languagebar {
+    margin-top: 0px;
+  }
+}
+
+.rfloat, .lfloat {
+  max-width: 50% !important;
+}
+
+.triadbox, #rightbar .rnav {
+  /*width: 100%;*/
+  max-width: 100%;
+  padding: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.greenbox {
+  background-color: #e8f4dd;
+}
+
+.greybox {
+  background-color: #f3f3f3;
+}
+
+.yellowbox {
+  background-color: #FFD346;
+}
+
+.whitebox, #rightbar .rnav {
+  background-color: white;
+}
+
+.redbox {
+  color: white;
+  background-color: #990000;
+}
+
+.redbox a:link, .redbox a:visited, .redbox a {
+  color: white;
+}
+
+#content .redbox ul {
+  list-style-image: url(../images/bullet7white.gif);
+}
+
+#content .redbox li::marker {
+  color: white;
+}
+
+.redbox a:active, .redbox a:hover {
+  color: #BBBBBB;
+}
+
+.triadboxshadow {
+  box-shadow: -3px 3px 10px -2px black;
+}
+
+@media screen and (max-width: 360px) { /* very small screen*/
+  span.embed:not(.frame) {
+    width: 100% !important;
+    height: unset !important;
+  }
+  
+  .rfloat, .lfloat {
+    box-sizing: border-box;
+    max-width: none !important;
+    width: 100% !important;
+    margin-left: 0em;
+    margin-bottom: 5px;
+  }
+  
+  .rfloat > img, .lfloat > img, .rfloat > a img:not([src$="/up.gif"]), .lfloat > a img {
+    width: 100%;
+  }
+
+  .rfloat > img[src="/pub/icons/ext.gif"], 
+  .lfloat > img[src="/pub/icons/ext.gif"], 
+  .rfloat > img[src="/pub/icons/pdf.gif"], 
+  .lfloat > img[src="/pub/icons/pdf.gif"],
+  .rfloat > img[src="/pub/icons/doc.gif"], 
+  .lfloat > img[src="/pub/icons/doc.gif"] {
+    width: auto;
+  }
+}
+
+@media screen and (min-width: 900px) { /* big screen*/
+  #header-box-main {
+    background: #275A14 url(../images/bandeauCEF.jpg?3) no-repeat;
+  }
+}
+
+@media screen and (min-width: 800px) { /* big screen*/
+  #center-content-wrapper {
+    margin-right: 0px;
+  }
+}
+
+/***************************************
+       Scroll bars
+***************************************/
+#left-panel::-webkit-scrollbar {
+  width: 12px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #777777;
+  border-radius: 5px;
+  border: 1px solid #505050;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+
+::-webkit-scrollbar-track-piece{
+  background: #BBBBBB;
+}
+
+/***************************************
+       Masonry boxes
+***************************************/
+.masonry {
+  column-count: 2;
+  column-gap: 2em;
+  padding: 10px;
+}
+
+.masonry-item {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px 5px 5px 8px;
+  box-shadow: -3px 3px 10px -2px black;
+}
+
+@media screen and (max-width: 600px) { /* big screen*/
+  .masonry{
+    column-count: 1;
+  }
+}

@@ -1,0 +1,342 @@
+/* CSS Document */
+/*===================  COLORS  =================================================
+# c-green.css
+#
+# part of the Triad skin for Pmwiki
+#=============================================================================*/
+
+body, #left-panel, #sidebar, #right-panel, #footnavbox, .toggleleftbar {
+  background: #275A14;
+}
+
+/*********************
+       Header
+*********************/
+#header-box {
+  border-bottom: 1px solid #275A14;
+}
+
+#header-box-left {
+  background: white;
+}
+
+#header-menu li a:hover, #header-menu li a:active  {
+  color: white;
+  background: #990000;
+}
+
+#header-search a {
+  color: #FFD346;
+}
+
+#header-search .inputbutton a {
+  color: #000066;
+}
+
+#header-search {
+  color: #EEFFEE;
+}
+
+#header-menu a, #header-menu ul li {
+  color: white;
+}
+
+.inputbox {
+  background: #EBF5E0;
+  border-radius: 5px;
+  border-top:1px solid #999999;
+  border-left:1px solid #999999;
+  border-right:1px solid #EEEEEE;
+  border-bottom:1px solid #EEEEEE;
+}
+
+.inputbutton {
+  color: #000066;
+  background: #D6EBC2;
+  border-top:1px solid #EEEEEE;
+  border-left:1px solid #EEEEEE;
+  border-right:1px solid #999999;
+  border-bottom:1px solid #999999;
+  border-radius: 5px;
+}
+
+.inputbox:hover, .inputbox:focus {
+  color: #000000;
+  background: white;
+}
+
+.inputbutton:hover {
+  color: #990000;
+  background: #FFFFC7;
+}
+
+.inputboxgrey, .inputbuttongrey {
+  background: #CCCCCC !important;
+}
+
+.inputbutton:disabled {
+  color: #BBBBBB;
+  background: #DDDDDD;
+}
+
+#toggleleft:hover {
+  background: #E8F4DD;
+}
+
+#toggleright:hover, #social img:hover, #togglemenu:hover {
+  background: #990000;
+}
+
+.togglerightbar {
+  background-color: white;
+}
+
+/*********************
+       Global
+*********************/
+a:link, a:visited, a:active, a:hover, #titlebar a:hover  {
+  color: #000099;
+}
+
+/*********************
+       Content
+*********************/
+#content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
+  color: #990000;
+}
+
+#pagegroup a, #pagetitle a {
+  color: #990000;
+}
+	
+#center-content-wrapper {
+  background: white;
+}
+
+#titlebar a:hover {
+  text-decoration: none;
+}
+
+.quickref {
+  background: #EEEEFF;
+}	
+
+.navbuttons li a:hover, #footaction li a:active {
+  color: #990000;
+  background: #FFFFC7;
+}
+
+.navbuttons li a, a.fontsizer{
+  background: #D6EBC2;
+  color: #000066;
+  border-top:1px solid #EEEEEE;
+  border-left:1px solid #EEEEEE;
+  border-right:1px solid #999999;
+  border-bottom:1px solid #999999;
+}
+
+#footnav {
+  color: #EEFFEE;
+}   
+
+#content ul {
+  list-style-image: url(../images/bullet7.gif);
+}
+
+/*******************************
+    pagemenu
+*******************************/
+.pagemenuwrapper {
+  background-color: #275A14;
+}
+
+.pagemenuwrapper, .pagemenuwrapper a, .pagemenuwrapper ol li {
+  color: #D0D0D0;
+}
+
+.pagemenuwrapper p {
+  color: #FFD346;
+}
+
+/*******************************
+    personnalbox
+*******************************/
+.personnalbox td.sectioncell, .personnalbox td.sectioncell p {
+  color: #990000 !important;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.personnalbox td.sectioncell p {
+  font-size: 100% !important;
+}
+
+.personnalboxh {
+  background-color: #E8F4DD;
+  border: none;
+  border-left: 3px solid #990000;
+}
+
+.personnalboxh {
+  padding: 5px;
+}
+
+.personnalboxh div p {
+  color: #990000 !important;
+  font-size: 120%;
+}
+
+.personnalboxh div span {
+  color: #000000 !important;
+  font-size: 100%;
+}
+
+.personnalboxh div em span, .personnalboxh div span a {
+  color: #000000 !important;
+  font-size: 100%;
+  font-weight: normal;
+}
+
+.personnalboxh div span span {
+  color: #990000 !important;
+  font-size: 100%;
+}
+
+/*********************
+     Left panel
+*********************/
+#sidebar p, #sidebar h1, #sidebar h2, #sidebar h3, #sidebar h4 {
+  color: #FFD346;
+}
+
+#sidebar .sidehead, #sidebar p.sidehead a.wikilink {
+  color: #FFD346;
+}
+
+#sidebar h1 a:link, #sidebar h1 a:visited {
+  color: #FFC27F;
+}
+
+#sidebar h1 a:hover, #sidebar h1 a:active,
+#sidebar a:link, #sidebar a:visited {
+  color: #D0D0D0;
+}
+
+#sidebar a:hover, #sidebar a:active {
+  color: white;
+  text-decoration: none;
+}
+
+#sidebar p.sidehead a.wikilink:hover  {
+  color: white;
+  background: #990000;
+}
+
+#sidebar p.sidehead a.wikilink:active {
+  color: white;
+  background: #990000;
+}
+
+#sidebar li a:hover, #sidebar li a:active  {
+		color: white;
+    background: #990000;
+}
+
+#sidebar ul ul li  {
+  border-top: 0px solid #999999;
+  border-bottom: 0;
+}
+
+#sidebar a.selflink {
+  color: white;
+}
+
+#sidebar a:hover.selflink {
+  background: none;
+  color: white;
+}
+
+#sidebarfooter {
+  border-top:0px solid #999999;
+}
+
+#sidebar  p {
+  color: #EEEEEE;
+}
+
+#sidebar .sideclip {
+  color: #000000;
+  background: #E8F4DD;
+  padding:2px 0px;
+  margin:5px 5px 0 5px;
+}
+
+#sidebar .sideclip p, #sidebar .sideclip h4 {
+  color: #000000;
+  line-height:1.2em;
+}
+
+#sidebar .sideclip a {
+  color: blue;
+}
+
+#sidebar .trailmenu ul li a {
+  color: #EEFFEE;
+}
+
+#sidebar .trailmenu ul ul li a {
+  color: #AAFFAA;
+}
+
+#sidebar .trailmenu ul ul ul li a {
+  color: #FFAAAA;
+}
+
+/*********************
+     Fontsizer
+*********************/
+#rightbar a.fontsizer, #header-box-main a.fontsizer  {
+  color: #EEEEEE;
+  background: #35691A;
+  border-top:0;
+  border-left:0;
+  border-bottom:1px solid #1D5183;
+  border-right:1px solid #1D5183;
+}
+
+#content a.fontsizer {
+  background: #D6EBC2;
+}
+
+#sidebar a.fontsizer {
+  background: #35691A;
+}
+
+#header-box-main a.fontsizer:hover {
+  background: #990000;
+}
+
+#rightbar a.fontsizer:hover {
+  background: #990000;
+}
+
+#sidebar a.fontsizer:hover {
+  background: #990000;
+}
+
+#content a.fontsizer:hover {
+  background: white;
+  color: #990000;
+}
+
+/*********************
+     Other
+*********************/
+/* commentbox styled */
+.messagehead {
+  background: #C6DBB2;
+}
+
+.messageitem, .bquote {
+  background: #EBF5E0;
+}

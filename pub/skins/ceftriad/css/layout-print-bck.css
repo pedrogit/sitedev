@@ -1,0 +1,34 @@
+/* CSS Document */
+body { background:none #fff; 
+		width:auto; 
+		margin:0; padding:0;
+		font-family:"palatino linotype", palatino, "book antiqua", georgia, times, "times new roman", serif; 
+		}
+		
+#outer {	margin:0; 
+		padding:0; }		
+#head,#pagegroup,#left,#header-menu,#footnavbox,#pagefooter,#sidebar,#right {display:none}
+
+#titlebarbox { margin:0 0 0.5em 0; 
+		padding:0 0 0.5em 0; 
+		xborder-bottom:2pt solid #000;
+		
+		}
+#footer { border-top:1px solid #000; }
+#pagetitle { padding:0 0 5px 0; 
+		font-family: "Lucida Grande", "Lucida Sans Unicode", verdana, sans-serif;
+		font-size:20pt;
+		border-bottom: 3px double #000;}
+#content {margin:0; 
+		padding:0;
+		line-height:1.33em;
+		font-size:12pt}
+a {text-decoration:none; color:black}
+h1 { font-size:24pt; font-weight:600; padding:5pt 0}
+h2 { font-size:22pt; font-weight:600;padding-bottom:5pt}
+h3 { font-size:20pt; font-weight:600;padding-bottom:5pt}
+h4 { font-size:18pt; font-weight:600;padding-bottom:5pt}
+h5 { font-size:14pt; font-weight:600;padding-bottom:5pt}
+h6 { font-size:12pt; font-weight:600;font-variant:small-caps;}
+
+hr {color:#999;}

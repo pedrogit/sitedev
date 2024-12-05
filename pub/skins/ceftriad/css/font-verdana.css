@@ -1,0 +1,198 @@
+/* CSS Document */
+/*
+#======================  FONTS  =========================================
+# font-verdana.css
+# 
+# part of the Gemini Two & FixFlow skin for Pmwiki
+#========================================================================*/
+/*======= Master font sizes =========*/
+#content  {
+  font-size: 90%;
+}
+
+#rightbar {
+  font-size: 75%;
+}
+
+#sidebar  {
+  font-size: 75%;
+}
+
+#header-search {
+  font-size: 90%;
+}
+
+#header-menu   {
+  font-size: 75%;
+}
+
+#footnav  {
+  font-size: 75%;
+}
+
+#footer   {
+  font-size: 75%;
+}
+
+#titlebar {
+  font-size: 90%;
+}
+
+/*=============================*/
+
+code, pre {
+  color: #007f00;
+  font-family: Lucida Console,monospace;
+}
+ 
+textarea.inputtext {
+  font-size: 1.1em;
+}
+
+.inputbox {
+  font-weight: 500;
+}
+
+.pageheader xp, .topheader xp {
+  font-size: 2.5em;
+  line-height: 1em;
+  font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+
+* html .pageheader xp {
+  line-height: 1.15em;
+}
+
+#header-search h1, #header-search h2, #header-search h3, 
+#header-search h4, #header-search h5, #header-search h6 { 
+  font-weight: 500;
+  margin: 0 2px 2px 0;
+  line-height: 100%; 
+  font-family: font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+		
+#pagegroup {
+  font-size: 1em;
+  font-weight: 600; 
+  font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+		
+#pagetitle h1 {
+  font-size: 2em;
+  font-weight: 500; 
+  font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+		
+#content {
+  font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+		
+#content h1, #content h2, #content h3, 
+#content h4, #content h5, #content h6 { 
+  font-weight: 500; 
+  line-height: 133%; 
+  font-family: font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+
+#content h1 {
+  font-size: 2.1em;
+}
+
+#content h2 {
+  font-size: 1.9em;
+  border-bottom: 1px solid;
+  margin-bottom: 0.2em;
+}
+
+#content h3 {
+  font-size: 1.5em;
+  color: red;
+  margin-bottom: 0.2em;
+}
+
+#content h4 {
+  font-size: 1.2em;
+}
+
+#content h5 {
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+#content h6 {
+  font-size: 1.0em;
+  font-variant: small-caps;
+  font-weight: 600;
+}
+
+#sidebar h1 {
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+#sidebar h2 {
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+#sidebar h3 {
+  font-size: 1.0em;
+  font-weight: 700;
+}
+
+#sidebar h4 {
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+#sidebar h5 {
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+#sidebar h6 {
+  font-size: 1.0em;
+  font-weight: 700;
+}
+
+p.sidehead {
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+#header-menu, #sidebar, #rightbar, #footnav, #footer, #header-search, #headsearchbox { 
+	font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}
+
+#rightbar h1 {
+  font-size: 1.5em;
+}
+#rightbar h2 {
+  font-size: 1.4em;
+  border-bottom: 1px solid;
+}
+
+#rightbar h3 {
+  font-size: 1.3em;
+}
+
+#rightbar h4 {
+  font-size: 1.2em;
+}
+
+#rightbar h5 {
+  font-size: 1em;
+}
+
+#rightbar h6 {
+  font-size: 1em;
+  font-variant: small-caps;
+}
+
+* html #rightbar {
+  line-height: 1.2em;
+}
+
+.togglebox {
+  font-family: Verdana, Geneva, Helvetica, Arial, sans-serif;
+}

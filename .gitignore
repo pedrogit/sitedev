@@ -125,8 +125,6 @@ extensions/README
 
 pub/ape/
 
-pub/datepicker/
-
 pub/skins/triad/
 
 pub/ultralightbox/
@@ -172,3 +170,27 @@ pub/wsplus/tip.gif
 pub/wsplus/warning.gif
 
 cookbook/wsplus.php
+
+.htaccess
+
+.user.ini
+
+index.php
+
+robots.txt
+
+test.html
+
+testmail.php
+
+pub/datepicker/datepicker-default.css
+
+pub/datepicker/datepicker.js
+
+pub/datepicker/datepickerselect.gif
+
+pub/icons/
+
+pub/skins/ceftriad/pagemenu_01.php
+
+pub/skins/ceftriad/pagemenu_02.php

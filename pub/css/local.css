@@ -1,0 +1,256 @@
+table.zebra tr.ind2 {
+	background-color:#E8F4DD;
+}
+
+table.zebragrey tr.ind2 {
+  background-color:#EEEEEE;
+}
+
+table.zebrablue tr.ind2 {
+  background-color:#C3D5E1;
+}
+
+table.zebragreen tr.ind2 {
+  background-color:#D1E7BC;
+}
+
+table.zebra td, table.zebrablue td, table.zebragrey td, table.zebragreen td  {
+	padding:5px;
+}
+
+table.zebra, table.zebrablue, table.zebragrey, table.zebragreen {
+	border:0px;
+}
+
+@media screen and (max-width: 1000px) {
+  table td.hidewhenbelow1000 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  table td.hidewhenbelow900 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  table td.hidewhenbelow800 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  table td.hidewhenbelow700 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  table td.hidewhenbelow600 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 500px) { 
+  table td.hidewhenbelow500 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  table td.hidewhenbelow400 {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  table td.hidewhenbelow300 {
+    display: none;
+  }
+}
+
+table.responsivefontsize, table.rfs {
+  font-size: clamp(0.6rem, 1.5vw, 1em);
+}
+
+table.yellow {
+  background-color:#FFEC89;
+}
+
+table.green {
+  background-color:#E8F4DD;
+}
+
+/***** mini ****/
+
+.mini { 
+  padding:2px;
+  border:1px solid #dddddd; 
+  background-color:#ffffff; /*remove line for transparent thumbs*/
+}
+.miniH, .miniF {
+  display:block;
+}
+
+#uv_ov {
+  opacity: 100 !important;
+}
+
+/* hack for photomontage, use noclear in the tag to disable it */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  div.photomontage2 {
+    clear:both;
+  }
+}
+
+/* added for ape recipe iframe */
+.frame, .embed {
+  display: inline-block; /* so frame border wrap around content */
+  box-sizing: border-box;
+  max-width: 100%; /* form small screens*/
+}
+
+.embed > iframe {
+  width: 100% !important; /* so iframe expand to container */
+  height: 100% !important; /* so iframe expand to container */
+  border: none !important; /* remove default ape border */
+  background-color: black; /* fill empty space with black */
+}
+
+/* add a top margin over subtitle */
+.frame .caption, .frame iframe + a + span {
+  display: inline-block;
+  margin-top: 5px;
+}
+
+/* default frame image to 100% of their container */
+.frame > img:not([src="/pub/icons/ext.gif"]):not([src="/pub/icons/pdf.gif"]):not([src="/pub/icons/doc.gif"]):not([src="/pub/icons/ppt.gif"]):not([src="/pub/icons/xls.gif"]):not([src="/pub/icons/zip.gif"]), 
+.frame > .imgcaption > span > img:not([src="/pub/icons/ext.gif"]):not([src="/pub/icons/pdf.gif"]):not([src="/pub/icons/doc.gif"]):not([src="/pub/icons/ppt.gif"]):not([src="/pub/icons/xls.gif"]):not([src="/pub/icons/zip.gif"]), 
+.img > .frame > img:not([src="/pub/icons/ext.gif"]):not([src="/pub/icons/pdf.gif"]):not([src="/pub/icons/doc.gif"]):not([src="/pub/icons/ppt.gif"]):not([src="/pub/icons/xls.gif"]):not([src="/pub/icons/zip.gif"]), 
+.img > span > img:not([src="/pub/icons/ext.gif"]):not([src="/pub/icons/pdf.gif"]):not([src="/pub/icons/doc.gif"]):not([src="/pub/icons/ppt.gif"]):not([src="/pub/icons/xls.gif"]):not([src="/pub/icons/zip.gif"]), 
+.frame > a > img:not([src="/pub/icons/ext.gif"]):not([src="/pub/icons/pdf.gif"]):not([src="/pub/icons/doc.gif"]):not([src="/pub/icons/ppt.gif"]):not([src="/pub/icons/xls.gif"]):not([src="/pub/icons/zip.gif"]), 
+.wrapingrow div spam
+{
+  min-width:100%;
+}
+
+.wrapingrow div, div.img span
+{
+  max-width:100%;
+}
+
+.img > .frame, .img > span {
+  display: inline-block;
+}
+
+/* Match bullet indentation */
+.indent {
+  margin-left:20px;
+}
+
+.cframe br {
+  display:none;
+}
+
+/* instagram */
+span.cefinstagram {
+  position: relative;
+  overflow: hidden;
+}
+
+span.cefinstagram iframe {
+  width: calc(100% + 17px) !important;
+  height: calc(100% + 60px) !important;
+  position: relative;
+  top: -59px;
+}
+
+/* ensure YouTube boxes have a min-width of 332 when possible so the thumbnail appear at best resolution */
+@media screen and (min-width: 360px) {
+  div.cefyoutube {
+    min-width: 332px !important;
+  }
+}
+
+/* ensure cefvignette on main page takes 100% when screen is smaller than 500px */
+@media screen and (max-width: 500px) {
+  div.cefvignette {
+    width: 100% !important;
+    margin-left: 0em;
+    max-width: 100% !important;
+    float: none;
+  }
+}
+
+/* form styles*/
+.forminput {
+  display: flex;
+  flex-direction: row;
+  min-width: 100%;
+}
+
+.formlabel {
+  display: flex;
+  box-sizing: border-box;
+  padding-right: 10px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: right;
+  align-items: flex-end;
+  min-width: 50%;
+  width: 100%;
+}
+
+.formfield {
+  min-width: 50%;
+}
+
+.formfield input:not([type=submit]):not([type=button]):not([type=reset]):not([type=radio]), 
+.formfield textarea, 
+.formfield select {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.inputbutton.medium, 
+.inputbox.medium, 
+.formfield input.medium, 
+.formfield label.medium, 
+.formfield select.medium {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 50%;
+}
+
+.inputbutton.small, 
+.inputbox.small, 
+.formfield input.small, 
+.formfield label.small, 
+.formfield select.small {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 25%;
+}
+
+@media screen and (max-width: 500px) {
+	
+  .inputbutton.medium, 
+  .inputbox.medium {
+    width: 100% !important;
+  }
+
+  .forminput {
+    flex-direction: column;
+  }
+  
+  .formlabel {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+
+div[data-sortitem="1"]:nth-child(odd) {
+  background-color:#eeeeee;
+}
