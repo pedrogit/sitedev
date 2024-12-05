@@ -1706,7 +1706,9 @@ function FoxInputCheck($pagename, $fx) {
         if (!is_array($ar)) continue;
         foreach ($ar as $i => $v) {
             $n = substr($k,4); // remove leading 'chk_'
-            if ($v=='') continue; // set only non-empty values
+            // Pierre Racine
+            // This was preventing users from setting input values to nothing
+            //if ($v=='') continue; // set only non-empty values
             if ($n=='name') {
                 $nms = explode(',',$v);
                 foreach ($nms as $j => $nm)
@@ -1719,9 +1721,20 @@ function FoxInputCheck($pagename, $fx) {
     foreach ($check as $opt) {
         foreach ($opt['names'] as $n) {
             if (isset($opt['empty']) && $opt['empty']==1 && ($fx[$n]=='' || $fx[$n]==$FoxClearPTVFmt)) continue;
-            if (!isset($opt['match'])) $opt['match'] = "?*";
-            $pat = (isset($opt['regex'])) ? $opt['regex'] : ".+";
-            list($inclp, $exclp) = GlobToPCRE($opt['match']); 
+            // Pierre Racine
+            $inclp = "";
+            $exclp = "";
+            $pat = "";
+            if (isset($opt['match']) && $opt['match'] == "") {
+                $exclp = ".+";
+                $pat = (isset($opt['regex'])) ? $opt['regex'] : "";
+            }
+            else 
+            {
+                if (!isset($opt['match'])) $opt['match'] = "?*";
+                list($inclp, $exclp) = GlobToPCRE($opt['match']); 
+                $pat = (isset($opt['regex'])) ? $opt['regex'] : ".+";
+            }
             if ($inclp && !preg_match("/$inclp/is", $fx[$n]) 
                        || $exclp && preg_match("/$exclp/is", $fx[$n])
                        || !preg_match("/$pat/is", $fx[$n])) {
