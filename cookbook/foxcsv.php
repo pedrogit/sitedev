@@ -505,7 +505,7 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
         $header = fxc_Fields($opt['show'], $header);
     //remove fields not for display
     unset($header['SOURCE']);
-    // Pierre Racine
+    // Pierre Racine Preview
     // Unset all parameter passed to the template so they are not added to the auto table
     foreach ($header as $key => $value) {
         if (strpos($key, "FOXCSV_") !== false) {
