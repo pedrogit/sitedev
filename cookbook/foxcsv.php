@@ -1173,7 +1173,7 @@ function fxc_Edit_Form($pagename) {
     $text = fxc_Get_Text($pagename, $fulltarget);
     if (empty($text)) FoxAbort($pagename,"$[Error: cannot find csv data] $fulltarget");
     // get rows array from text
-    $text = trim($text,"\n\r");
+    $text = trim($text,"\r\n");
     $rows = explode("\n", $text); //get rows
     // get csv separator/delimiter 
     list($sep, $args) = fxc_Set_Sep($text, $args);
