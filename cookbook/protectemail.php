@@ -45,12 +45,12 @@ $RecipeInfo['ProtectEmail']['Version'] = '$Rev$';
 
 ## [[mailto:target]]
 Markup('protectedmailto','<links',
-  "/\\[\\[mailto:([^\\s$UrlExcludeChars]*)\\s*\\]\\]($SuffixPattern)/e",
+  "/\\[\\[mailto:([^\\s$UrlExcludeChars]*)\\s*\\]\\]($SuffixPattern)/",
     "protectEmail1x1");
 
 ## [[nolinkmailto:target]]
 Markup('protectednolinkmailto','<links',
-  "/\\[\\[nolinkmailto:([^\\s$UrlExcludeChars]*)\\s*\\]\\]($SuffixPattern)/e",
+  "/\\[\\[nolinkmailto:([^\\s$UrlExcludeChars]*)\\s*\\]\\]($SuffixPattern)/",
     "protectEmail1x0");
 
 ## [[mailto:target | text]]
@@ -60,7 +60,7 @@ Markup('protectedmailto|','<links',
 
 ## [[ text -> mailto:target]]
 Markup('-protectedmailto','<links',
-  "/\\[\\[(.*?)\\s*-+&gt;\\s*mailto:([^\\s$UrlExcludeChars]*)\\s*\\]\\]($SuffixPattern)/e",
+  "/\\[\\[(.*?)\\s*-+&gt;\\s*mailto:([^\\s$UrlExcludeChars]*)\\s*\\]\\]($SuffixPattern)/",
     "protectEmail211('$2','$1',1)");
 
 ## Add decoding script to Header
