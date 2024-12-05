@@ -530,6 +530,7 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
         }
     }
     if ($opt['hideidx']==1) unset($header['IDX']);
+    $multidelete = !isset($opt['multidelete']) || $opt['multidelete'] !== 0;
     // set cell alignment
     $ralf = $calf = array();
     if (isset($opt['ralign'])) $ralf = fxc_Fields($opt['ralign'], $header); //right aligned columns
@@ -567,6 +568,7 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
         // Pass-on the multiline parameter when it is set in the (:csv markup
         // So that double quotes are automatically added only to the multiline fields
         $template = $tmpl."(:cell:)".
+                    ($multidelete ? "(:csv-multidelete-check idx={\$\$IDX}:)" : "").
                     "(:csv-delete target={\$\$SOURCE} idx={\$\$IDX} sep=\"".$opt['sep']."\"".
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').":)".
                     "(:csv-edit {\$\$SOURCE} idx={\$\$IDX} sep={$opt['sep']} ". 
@@ -657,7 +659,9 @@ function fxc_Auto_Table($pagename, $data, $header, $opt, $num) {
                     (CondAuth($pagename,'admin')? "(:csv-edit {\$\$SOURCE} idx=header sep=\"".$opt['sep']."\" :) | " : ""). 
                     "(:csv-edit {\$\$SOURCE} idx='$nw' sep=\"".$opt['sep']."\" label='Add +'".
                     (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').
-                    ":)";
+                    ":)".
+                    (isset($multidelete) ? "(:csv-multidelete target={\$\$SOURCE} sep=\"".$opt['sep']."\"".
+                    (isset($opt['multiline']) ? " multiline={$opt['multiline']} " : '').":)" : '');
         }
         $head .= FoxVarReplace($pagename, $header, '', $htpl)."\n";
     } 
@@ -822,11 +826,11 @@ function fxc_Get_Row_Key($rows, $idx, $sep, $modeCSV=false ) {
 
 //===================================//
 // csv mod button markup {[foxcsv... target={$$SOURCE} idx={$$IDX} label='&nbsp;X&nbsp;']} 
-Markup('foxcsvact', 'directives', '/\(:csv-(del|delete|index|reindex|reformat|trim|quote|table|coldel|newcol|import|export)\\s+(.*?)\\s*:\)/',
+Markup('foxcsvact', 'directives', '/\(:csv-(del|delete|multidelete|index|reindex|reformat|trim|quote|table|coldel|newcol|import|export)\\s+(.*?)\\s*:\)/',
        "fxc_Action_Form_Fmt");
 # Creates the HTML output for csv action button
 function fxc_Action_Form_Fmt( $m ) { 
-    global $FoxCSVConfig, $ScriptUrl, $EnablePathInfo;
+    global $FoxCSVConfig, $ScriptUrl, $EnablePathInfo, $HTMLHeaderFmt;
     extract($GLOBALS['MarkupToHTML']);
 
     $act = $m[1];
@@ -845,44 +849,52 @@ function fxc_Action_Form_Fmt( $m ) {
     $idx =  $opt['idx'] ?? '';
     $csum = '$[Table updated]';
     $imageurl = '';
-    // set defaults for labels and titles (mouse-over tooltips)
+    // set labels, titles, messages
+    switch ($act) {
+        case 'del': $act= 'delete';
+        case 'delete':  $imageurl = $FoxCSVConfig['deletebuttonurl']; 
+                        // Pierre Racine Preview
+                        // When IDX is empty, display a message instead of doing nothing
+                        $label = "$[Delete]"; $title = "$[Delete row]".(empty($idx) ? " (no IDX provided)" : "");
+                        $onclickmessage = '$[Please confirm: Do you want to delete this row?]';
+                        $csum = '$[Table row deleted]'; break;
+        case 'multidelete':   $imageurl = $FoxCSVConfig['deletebuttonurl'];
+                        $label = "$[Delete selected]"; $title = "$[Delete selected rows]";
+                        $onclickmessage = '$[Please confirm: Do you want to delete these XXX rows?]';
+                        $csum = '$[Table rows deleted]'; break;
+        case 'index':   $label = '$[Index]'; $title = "$[Index] $target";
+                        $onclickmessage = '$[Please confirm: Do you want to index this table?]';
+                        $csum = '$[CSV Table Index added]'; break;
+        case 'reindex': $label = '$[Re-Index]'; $title = "$[Re-index] $target";
+                        $onclickmessage = '$[Please confirm: Do you want to reindex this table?]';
+                        $csum = '$[CSV Table re-indexed]'; break;
+        case 'reformat':$label = '$[Reformat]'; $title = "$[Reformat with new separator] $target";
+                        $onclickmessage = '$[Please confirm: Do you want to reformat this table?]';
+                        $csum = '$[CSV Table reformatted]'; break;
+        case 'trim':    $label = '$[Trim Quotes]'; $title = "$[Trim surrounding quotes and white spaces from] $target"; 
+                        $onclickmessage = '$[Please confirm: Do you want to trim items of this table?]';
+                        $csum = '$[CSV Items trimmed]'; break;
+        case 'quote':   $label = '$[Add Quotes]'; $title = "$[Enclose with double quote marks on] $target"; 
+                        $onclickmessage = '$[Please confirm: Do you want to add quote marks to items of this table?]';
+                        $csum = '$[CSV Items enclosed in quote marks]'; break;
+        case 'table':   $label = '$[Make Table]'; $title = "$[Make Table] $target"; 
+                        $onclickmessage = '$[Please confirm: Do you want to convert csv table into simple table format?]';  break; 
+        case 'coldel':  $label = '$[Delete Column]'; $title = "$[Delete Column on] $target"; 
+                        $onclickmessage = '$[Please confirm: Do you want to delete this column from the table?]';
+                        $csum = '$[Column deleted]'; break;
+        case 'newcol':  $label = '$[Add New Column]'; $title = "$[Add New empty Column to] $target";
+                        $onclickmessage = '$[Please confirm: Do you want to add this new column to the table?]';
+                        $csum = '$[New column added]'; break; 
+        case 'import':  $label = '$[Import]'; $title = "$[Import] $target"; break;
+        case 'export':  $label = '$[Export]'; $title = "$[Export] $target"; break;
+    }
+    // reset labels and titles (mouse-over tooltips) if provided
     if (isset($opt['label'])) {
         $label = $opt['label'];
-        $title = $opt['title'] ?? $label;
+        // if there is a label, there is no need for a tooltip unless it is explicitely set
+        $title = $opt['title'] ?? "";
+        $imageurl = '';
     }
-    // set labels, titles, messages
-    else switch ($act) {
-            case 'del':
-            case 'delete':  $imageurl = $FoxCSVConfig['deletebuttonurl']; 
-                            $label = 'X'; $title = "$[Delete row] $idx";
-                            $onclickmessage = '$[Please confirm: Do you want to delete this csv row?]';
-                            $csum = '$[Table row deleted]'; break;
-            case 'index':   $label = '$[Index]'; $title = "$[Index] $target";
-                            $onclickmessage = '$[Please confirm: Do you want to index this csv table?]';
-                            $csum = '$[CSV Table Index added]'; break;
-            case 'reindex': $label = '$[Re-Index]'; $title = "$[Re-index] $target";
-                            $onclickmessage = '$[Please confirm: Do you want to reindex this csv table?]';
-                            $csum = '$[CSV Table re-indexed]'; break;
-            case 'reformat':$label = '$[Reformat]'; $title = "$[Reformat with new separator] $target";
-                            $onclickmessage = '$[Please confirm: Do you want to reformat this csv table?]';
-                            $csum = '$[CSV Table reformatted]'; break;
-            case 'trim':    $label = '$[Trim Quotes]'; $title = "$[Trim surrounding quotes and white spaces from] $target"; 
-                            $onclickmessage = '$[Please confirm: Do you want to trim items of this csv table?]';
-                            $csum = '$[CSV Items trimmed]'; break;
-            case 'quote':   $label = '$[Add Quotes]'; $title = "$[Enclose with double quote marks on] $target"; 
-                            $onclickmessage = '$[Please confirm: Do you want to add quote marks to items of this csv table?]';
-                            $csum = '$[CSV Items enclosed in quote marks]'; break;
-            case 'table':   $label = '$[Make Table]'; $title = "$[Make Table] $target"; 
-                            $onclickmessage = '$[Please confirm: Do you want to convert csv table into simple table format?]';  break; 
-            case 'coldel':  $label = '$[Delete Column]'; $title = "$[Delete Column on] $target"; 
-                            $onclickmessage = '$[Please confirm: Do you want to delete this column from the table?]';
-                            $csum = '$[Column deleted]'; break;
-            case 'newcol':  $label = '$[Add New Column]'; $title = "$[Add New empty Column to] $target";
-                            $onclickmessage = '$[Please confirm: Do you want to add this new column to the table?]';
-                            $csum = '$[New column added]'; break; 
-            case 'import':  $label = '$[Import]'; $title = "$[Import] $target";
-            case 'export':  $label = '$[Export]'; $title = "$[Export] $target";
-        }
     $sep = $opt['sep'] ?? $FoxCSVConfig['sep'] ?? '';
     $env = $opt['env'] ?? $FoxCSVConfig['env'] ?? 0;
     $col = $opt['col'] ?? '';
@@ -897,8 +909,39 @@ function fxc_Action_Form_Fmt( $m ) {
         $tpn = explode("#",$target)[0];
         $TargetPageUrl = PUE(($EnablePathInfo) ? "$ScriptUrl/$target" : "$ScriptUrl?n=$tpn");
     }
-    // javascript delete message dialogue
-    $onclick = ($FoxCSVConfig['popups']==true)? "onclick='return confirm(\"{$onclickmessage}\")'" : "";
+    // javascript delete message 
+    if ($act == 'multidelete') {
+        SDV($HTMLHeaderFmt['foxcsvmultidelete'], "<script type='text/javascript'>
+        function setMultiDeleteVal(e){
+          const checkboxes = document.querySelectorAll('input[name=\"FoxCSV-multidelete\"]:checked');
+          const values = Array.from(checkboxes).map(checkbox => checkbox.value);
+          const form = e.form ?? null;
+          if (form) {
+            const csvidxInput = form.elements['csvidx'];
+            csvidxInput.value = values.join(',');
+          }
+          else return 0;
+          return values.length;
+        }
+        </script>");
+        if ($FoxCSVConfig['popups']==true && isset($onclickmessage)) {
+            $onclick = "onclick='
+                var nbChk = setMultiDeleteVal(this);
+                if (nbChk > 0) {
+                   ok = confirm(\"{$onclickmessage}\".replace(\"XXX\", nbChk));
+                   return ok;
+                }
+                alert(\"$[No rows selected...]\");
+                return false;'";
+        }
+        else {
+            $onclick = "onclick='
+               setMultiDeleteVal(this);'";
+        }
+    }
+    else {
+        $onclick = ($FoxCSVConfig['popups']==true)? "onclick='return confirm(\"{$onclickmessage}\")'" : "";
+    }
     // construct HTML delete button as output, additional input given via foxfilter function
     $out = "\n<form  class='csvform' name='FoxCSV-$act' action='{$TargetPageUrl}' method='post' >".
                 "<input type='hidden' name='foxpage' value='{$pagename}' />".
@@ -1071,9 +1114,33 @@ function FoxCSV_Update($pagename, $text, $newline, $fx) {
         // remove single row according to idx given. row number can be different from idx number for indexed tables
         case 'del':
         case 'delete': 
-                $key = fxc_Get_Row_Key($rows, $idx, $sep); 
-                unset($rows[$key]);
-                $FoxMsgFmt[] = "CSV row deleted";
+        case 'multidelete':
+                $idxs = explode(',', $idx);
+                foreach ($idxs as $id) {
+                    $key = fxc_Get_Row_Key($rows, $id, $sep);
+                    if (!empty($key)) {
+                        // if activefield is set, we do not delete the record but only set the activefield to 0
+                        if (isset($fx['activefield'])) {
+                            $csv = $rows[0]."\n".$rows[$key];
+                            // parse the data
+                            if (isset($FoxCSVConfig['csvparser']) && function_exists($FoxCSVConfig['csvparser']))
+                                $data = $FoxCSVConfig['csvparser']($csv, $sep);
+                            else
+                                $data = fxc_Parse_CSV($csv, $sep);
+                            // set activefield to 0
+                            $activefieldIdx = array_search($fx['activefield'], $data[0]);
+                            $data[1][$activefieldIdx] = 0;
+                            $rows[$key] = fxc_Make_CSV_Row($data[1], $sep, $env);
+                        }
+                        else {
+                            unset($rows[$key]);
+                        }
+                        $FoxMsgFmt[] = "CSV row deleted";
+                    }
+                    else {
+                        $FoxMsgFmt[] = "No CSV row to delete";
+                    }
+                }
                 break;
         // add a first field with index numbers and 'IDX' in the header row    
         case 'index':  
@@ -1375,6 +1442,16 @@ function fxc_Edit_Form($pagename) {
     PrintFmt($pagename, $HandleEditFmt);
     exit;
 } //}}}
+
+Markup('foxcsvmultideletecheck','directives','/\\(:csv-multidelete-check\\s*(.*?)\\s*:\\)/', "fxc_Multidelete_ChkBox");
+function fxc_Multidelete_ChkBox($m) {
+    extract($GLOBALS['MarkupToHTML']);
+    $args = ParseArgs($m[1]);
+    $idx = $args['idx'] ?? "";
+    $title = "$[Mark row for deletion]";
+    $out = "<div class=csvform style='text-align:center;'><button class=inputbutton style='display:inline-flex !important;height:100%;font-size: unset;'><input type='checkbox' name='FoxCSV-multidelete' value='$idx' class='' title='$title'></button></div>";
+    return Keep(FmtPagename($out,$pagename));
+}
 
 Markup('foxcsveditform','directives','/\\(:csv-edit\\s*(.*?)\\s*:\\)/', "fxc_Edit_Button");
 // make (:csv-edit <source> <idx=..> ...:) form button HTML
