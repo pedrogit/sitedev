@@ -1,0 +1,37 @@
+.fieldDefsRow {
+  display: flex;
+  flex-direction: row;
+  margin-top: 2px;
+}
+
+.fieldDefsRow input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.expressionCol {
+  flex-basis: 35%;
+}
+
+.fieldNameCol {
+  flex-basis: 24%;
+}
+
+.buttonCol {
+  flex-basis: 3%;
+}
+
+.widebutton {
+  width: 100%;
+}
+
+.cmeditor {
+  height: 100%;
+}
+
+.cmeditor > .CodeMirror {
+  height: 100%;
+  resize: vertical;
+}
+
+
