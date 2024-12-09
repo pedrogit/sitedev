@@ -1,0 +1,94 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: green;
+}
+
+button {
+  margin-right: 5px;
+}
+
+#main {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+#fieldDefsHeader,
+#fieldDefToolBar,
+.fieldDefsRow {
+  display: flex;
+  flex-direction: row;
+  margin-top: 2px;
+}
+
+.boldHeader {
+  font-weight: bold;
+  color: white;
+}
+
+#dataDefinition,
+#dataSource {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+  max-width: 50%;
+  padding: 5px;
+}
+
+.expressionCol {
+  flex-basis: 40%;
+}
+
+.fieldNameCol {
+  flex-basis: 14%;
+}
+
+.deleteButtonCol, .addBeforeButtonCol {
+  flex-basis: 3%;
+}
+
+p,
+input,
+textarea {
+  padding: 2px 5px;
+  margin: 0px;
+}
+
+div,
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#resultingCSVinput,
+#sourceHighlighted {
+  min-height: 200px;
+  resize: vertical;
+}
+
+#sourceinput {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#sourceHighlighted {
+  height: 100%;
+  overflow-y: scroll;
+  border: 1px solid;
+  padding: 3px;
+  font-family: monospace;
+  background-color: white;
+}
+
+#resultingCSVHeader, #sourceHeader, #sourceHighlightedHeader {
+  display: flex;
+  align-items: center;
+}
+
+#resultingCSVWait, #sourceHighlightedWait {
+  display: none;
+  margin-left:5px;
+  width: 15px;
+}

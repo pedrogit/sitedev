@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <title>CEF Data Extractor</title>
+  <link rel="stylesheet" href="style03.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+
+<body>
+  <div id=main>
+    <div id=dataDefinition>
+      <div id=fieldDefs>
+        <div id=fieldDefsHeader>
+          <p class="fieldNameCol boldHeader">Field&nbsp;Name</p>
+          <p class="expressionCol boldHeader">Opening&nbsp;RegEx&nbsp;Delimiter</p>
+          <p class="expressionCol boldHeader">Closing&nbsp;RegEx&nbsp;Delimiter</p>
+          <p class="addBeforeButtonCol boldHeader">&nbsp;</p>
+          <p class="deleteButtonCol boldHeader">&nbsp;</p>
+        </div>
+        <div id=fieldDefsRows>
+          <div class=fieldDefsRow>
+            <div class=fieldNameCol>
+              <input class=changingfield name=fieldname value="field1">
+            </div>
+            <div class=expressionCol>
+              <input class=changingfield name=start>
+            </div>
+            <div class=expressionCol>
+              <input class=changingfield name=end>
+            </div>
+            <div class=addBeforeButtonCol>
+              <button class=addBeforeRowButton>Add&nbsp;Field&nbsp;Before</button>
+            </div>
+            <div class=deleteButtonCol>
+              <button class=deleteRowButton disabled>Delete</button>
+            </div>
+          </div>
+        </div>
+        <div id="fieldDefToolBar">
+          <button id=addRowButton>Add&nbsp;Field</button>
+          <button id=saveFieldDefButton>Export&nbsp;Field&nbsp;Def</button>
+          <button id=loadFieldDefButton
+            onclick="document.getElementById('loadFieldDefInput').click()">Import&nbsp;Field&nbsp;Def</button>
+          <input type="file" style="display:none;" id=loadFieldDefInput>
+        </div>
+      </div>
+      <div id="predefinedFieldSets">
+        <p class=boldHeader>Predefined Fields Sets</p>
+        <select id=predefinedFieldSetsSelect>
+          <option>None</option>
+          <option value="CVCanadienPeerReviewedArticles">CV Canadien - Peer Reviewed Articles</option>
+          <option value="CVCanadienArticlesDeMagazine">CV Canadien - Articles de magazine</option>
+          <option value="CVCanadienArticlesDeConference">CV Canadien - Articles de conférence</option>
+          <option value="CVCanadienFinancement">CV Canadien - Financement</option>
+          <option value="CVCanadienEncadrementEtudiants">CV Canadien - Encadrement d'étudiants</option>
+          <option value="CVCanadienEncadrementEtudiantsNomPrenom">CV Canadien - Encadrement d'étudiants (nom, prénom)</option>          
+          <option value="CVCanadienPresentations">CV Canadien - Présentatons</option>
+          <option value="CVCanadienInterventionsMedias">CV Canadien - Interventions dans les médias</option>
+          <option value="ArticlesFromGoogleScholar">Articles de Google Scholar</option>
+        </select>
+        <button id=loadPredefFieldDefButton>Load</button>
+      </div>
+      <div id=resultingCVS>
+        <div id=resultingCSVHeader>
+          <p class=boldHeader>Resulting CSV</p>
+          <button id=saveResCSVButton>Save</button>
+          <img id=resultingCSVWait src='processing.gif'>
+        </div>
+        <textarea id=resultingCSVinput></textarea>
+      </div>
+    </div>
+    <div id=dataSource>
+      <div id=sourceHeader>
+        <p class=boldHeader>Source</p>
+        <button id=loadSourceButton
+          onclick="document.getElementById('loadSourceInput').click()">Import&nbsp;Source&nbsp;File</button>
+        <input type="file" style="display:none;" id=loadSourceInput>
+      </div>
+      <textarea id=sourceinput class=changingfield></textarea>
+      <div id=sourceHighlightedHeader>
+        <p class=boldHeader>Highlighted Source</p>
+        <img id=sourceHighlightedWait src='processing.gif'>
+      </div>
+      <div id=sourceHighlighted></div>
+    </div>
+  </div>
+  <script src="dataextractor.js"></script>
+</body>
+</html>
