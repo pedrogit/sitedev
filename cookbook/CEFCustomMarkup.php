@@ -907,8 +907,8 @@ function HandleCreateMemberPage($pagename)
     $newpage = $page;
 
     # Get the password and the password confirmation from the POSTed variable
-    $passwd = trim(stripmagic($_POST['cmppass']) ?? "");
-    $passwdcon = trim(stripmagic($_POST['cmpconpass']) ?? "");
+    $passwd = trim(stripmagic($_POST['cmppass'] ?? ""));
+    $passwdcon = trim(stripmagic($_POST['cmpconpass'] ?? ""));
 
     if (isset($_POST['cmppass']) && $passwd != '' && $passwd === $passwdcon)
     {
@@ -937,6 +937,7 @@ function HandleCreateMemberPage($pagename)
     elseif (!isset($_POST['pageonly']) && (!isset($_POST['cmppass']) || ($passwd != $passwdcon)))
     {
         # The password confirmation is invalid or no password was entered, we have to request the password again
+        $ErrorMsg = '';
         if ($passwd != $passwdcon)
             $ErrorMsg = "<tr><td colspan=4 align=center><b><i style='color:#990000'>$[CMPPasswordDiff]<i></b></td></tr>";
 
