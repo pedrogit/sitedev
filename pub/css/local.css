@@ -1,3 +1,4 @@
+/*
 table.zebra tr.ind2 {
 	background-color:#E8F4DD;
 }
@@ -12,6 +13,23 @@ table.zebrablue tr.ind2 {
 
 table.zebragreen tr.ind2 {
   background-color:#D1E7BC;
+}
+*/
+
+table.zebra tbody tr:nth-child(odd) {
+  background-color: #E8F4DD;
+}
+
+table.zebragrey tbody tr:nth-child(odd) {
+  background-color: #EEEEEE;
+}
+
+table.zebrablue tbody tr:nth-child(odd) {
+  background-color: #C3D5E1;
+}
+
+table.zebragreen tbody tr:nth-child(odd) {
+  background-color: #D1E7BC;
 }
 
 table.zebra td, table.zebrablue td, table.zebragrey td, table.zebragreen td  {
