@@ -916,7 +916,7 @@ function HandleCreateMemberPage($pagename)
         # Write the login and password to the AuthUser page
         $pwpage = ReadPage($AuthPage);
         $newpwpage = $pwpage;
-        $newpwpage['text'] = $newpwpage['text']."\n".$name.": ".crypt($passwd)."\n";
+        $newpwpage['text'] = $newpwpage['text']."\n".$name.": ".pmcrypt($passwd)."\n";
 
         UpdatePage($AuthPage, $pwpage, $newpwpage);
 
