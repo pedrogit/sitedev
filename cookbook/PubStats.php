@@ -170,26 +170,26 @@ function PubStat1($m)
   else
   {
     $a = array(1,2);
-    $ret = "%red%'''" . $nbpub . " articles'''%% ont été publiés %red%'''" . $yeartext . "'''%% dans %red%'''" . count($journal) . " revues'''%%.
+    $ret = "%red%'''" . $nbpub . " articles'''%% ont été publiés %red%'''" . $yeartext . "'''%% dans %red%'''" . count($journal) . " revues'''%%. (:input filterbox \"#revuesstats_section\" 5:)
 
 ----
 
 ";
 
-    $ret .= "(:table class=\"zebra sortable\":)
-(:cellnr valign=top:)%red%'''Revue'''
-(:cell align=center valign=top:)%red%'''p-ISSN'''
-(:cell align=center valign=top:)%red%'''e-ISSN'''
-(:cell align=center valign=top:)%red%'''Avec comité'''
-(:cell align=center valign=top:)%red%'''Facteur d'impact 2007'''
-(:cell align=center valign=top:)%red%'''Facteur d'impact 2010'''
-(:cell align=center valign=top:)%red%'''Facteur d'impact 2015'''
-(:cell align=center valign=top:)%red%'''Facteur d'impact 2022'''
-(:cell align=center valign=top:)%red%'''Nombre de\\\\
+    $ret .= "(:table class=\"zebra sortable\" id=revuesstats_section:)
+(:headnr valign=top:)%red%'''Revue'''
+(:head align=center valign=top:)%red%'''p-ISSN'''
+(:head align=center valign=top:)%red%'''e-ISSN'''
+(:head align=center valign=top:)%red%'''Avec comité'''
+(:head align=center valign=top:)%red%'''Facteur d'impact 2007'''
+(:head align=center valign=top:)%red%'''Facteur d'impact 2010'''
+(:head align=center valign=top:)%red%'''Facteur d'impact 2015'''
+(:head align=center valign=top:)%red%'''Facteur d'impact 2022'''
+(:head align=center valign=top:)%red%'''Nombre de\\\\
 publication'''
-(:cell align=center valign=top:)%red%'''Pourcentage\\\\
+(:head align=center valign=top:)%red%'''Pourcentage\\\\
 n=" . $nbpub . "'''
-(:cell align=center valign=top:)%red%'''Cliquez&nbsp;pour&nbsp;voir\\\\
+(:head align=center valign=top:)%red%'''Cliquez&nbsp;pour&nbsp;voir\\\\
 ces&nbsp;publications...'''
 ";
     $pcttot = 0;
@@ -678,21 +678,21 @@ function PubStat3($m)
   }
   else
   {
-    $ret = "Il y a %red%'''" . $nbAuthorship . " auteurs'''%% pour %red%'''" . $nbpub . " articles'''%%" . $yeartext . ". Les membres du CEF sont premiers auteurs de %red%'''" . $nbFirstAuthorship . " de ces articles'''%%.
+    $ret = "Il y a %red%'''" . $nbAuthorship . " auteurs'''%% pour %red%'''" . $nbpub . " articles'''%%" . $yeartext . ". Les membres du CEF sont premiers auteurs de %red%'''" . $nbFirstAuthorship . " de ces articles'''%%. (:input filterbox \"#revuesstats_section\" 5:)
 
 ----
 
 ";
 
-    $ret .= "(:table class=\"zebra sortable\":)
-(:cellnr valign=top:)%red%'''Chercheur régulier'''
-(:cell align=center valign=top:)%red%'''Nombre de mention\\\\
+    $ret .= "(:table class=\"zebra sortable\" id=revuesstats_section:)
+(:headnr valign=top:)%red%'''Chercheur régulier'''
+(:head align=center valign=top:)%red%'''Nombre de mention\\\\
 à titre d'auteur'''
-(:cell align=center valign=top:)%red%'''Pourcentage de toutes les mentions (n=" . $nbAuthorship . ")'''
-(:cell align=center valign=top:)%red%'''Nombre d'article\\\\
+(:head align=center valign=top:)%red%'''Pourcentage de toutes les mentions (n=" . $nbAuthorship . ")'''
+(:head align=center valign=top:)%red%'''Nombre d'article\\\\
 premier auteur'''
-(:cell align=center valign=top:)%red%'''Pourcentage de tous les articles premier auteur (n=" . $nbFirstAuthorship . ")'''
-(:cell align=center valign=top:)%red%'''Pourcentage de ses propres articles comme premier auteur'''
+(:head align=center valign=top:)%red%'''Pourcentage de tous les articles premier auteur (n=" . $nbFirstAuthorship . ")'''
+(:head align=center valign=top:)%red%'''Pourcentage de ses propres articles comme premier auteur'''
 ";
     foreach($membersAuthorships as $key => $value)
     {
